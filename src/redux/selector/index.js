@@ -1,0 +1,1 @@
+export const getListDialogs = state => state.chat.listDialogs || [];

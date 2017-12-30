@@ -1,17 +1,15 @@
-import { AuthScreen, SignInScreen, SignUpScreen, ForgotScreen } from "./Auth";
-import { ListFriend, ChatScreen } from "./ListFriend";
+import { SignInScreen, SignUpScreen, ForgotScreen } from "./UnAuthorizated";
+// import { ListFriend, ChatScreen } from "./ListFriend";
 import { GreetingScreen } from "./Getstarted";
-import { MainScreen, ListCallsScreen, ChatScreenOffical} from './MainScreen'
+import { MainScreen, ListCallsScreen, ChatScreen, CallVideo} from './Authorizated'
 
 export {
-  AuthScreen,
-  ListFriend,
-  ChatScreen,
   GreetingScreen,
   SignInScreen,
   SignUpScreen,
   ForgotScreen,
   MainScreen,
   ListCallsScreen,
-  ChatScreenOffical
+  ChatScreen,
+  CallVideo
 };

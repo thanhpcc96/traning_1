@@ -1,82 +1,29 @@
-/* eslint-disable */
-import firebase from "../../firebase";
-
-export const REGISTER = "REGISTER";
-export const REGISTER_SUCCESS = "REGISTER_SUCCESS";
-export const REGISTER_ERROR = "REGISTER_ERROR";
+import RNQuicklox from "../../QuickbloxManager";
 
 export const LOGIN = "LOGIN";
-export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
-export const LOGIN_ERROR = "LOGIN_ERROR";
+export const REGISTER = "REGISTER";
 
-export const register = (email, password) => {
-  return async dispatch => {
-    dispatch({
-      type: REGISTER
-    });
-    try {
-      const data = await firebase
-        .auth()
-        .createUserAndRetrieveDataWithEmailAndPassword(
-          email.toLowerCase(),
-          password
-        );
-        const user = {
-          uid: data.user.uid,
-          refreshToken: data.user.refreshToken,
-          photoURL: data.user.photoURL,
-          pa: data.user.pa,
-          email: data.user.email,
-          displayName: data.user.displayName
-        };
-        dispatch({
-          type: REGISTER_SUCCESS,
-          user
-        })
-    } catch (error) {
-      return dispatch({
-        type: REGISTER_ERROR,
-        error
+const quickblox = new RNQuicklox();
+export const login = (username, password) => {
+  return dispatch => {
+    quickblox.login(username, password, data => {
+      console.log('====================================');
+      console.log(data);
+      console.log('====================================');
+     return dispatch({
+        type: LOGIN,
+        payload: data
       });
-    }
+    });
   };
 };
-export const login = (email, password) => {
+export const register = (username, password, fullname, email) => {
   return dispatch => {
-    dispatch({
-      type: LOGIN
-    });
-    firebase
-      .auth()
-      .signInAndRetrieveDataWithEmailAndPassword(email, password)
-      .then(data => {
-        const user = {
-          uid: data.user.uid,
-          refreshToken: data.user.refreshToken,
-          photoURL: data.user.photoURL,
-          pa: data.user.pa,
-          email: data.user.email,
-          displayName: data.user.displayName
-        };
-        dispatch({
-          type: LOGIN_SUCCESS,
-          user
-        });
-      })
-      .catch(function(error) {
-        // Handle Errors here.
-        // const errorCode = error.code;
-        // const errorMessage = error.message;
-        dispatch({
-          type: LOGIN_ERROR,
-          error
-        });
-        //   if (errorCode === 'auth/wrong-password') {
-        //     alert('Wrong password.');
-        //   } else {
-        //     alert(errorMessage);
-        //   }
-        //   console.log(error);
+    quickblox.signUp(username, password, fullname, email, data => {
+      dispatch({
+        type: REGISTER,
+        payload: data
       });
+    });
   };
 };

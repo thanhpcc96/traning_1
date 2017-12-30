@@ -1,6 +1,5 @@
 import authReducer from "./auth.reducers";
-import friendsReducer from './friend.reducer';
-import chatReducers from './chat.reducers';
 import { navigtionReducer } from "./navigation.reducers";
+import chatReducers from "./chat.reducer";
 
-export { authReducer, navigtionReducer, friendsReducer, chatReducers };
+export { authReducer, navigtionReducer, chatReducers };

@@ -17,9 +17,12 @@ import { IndicatorViewPager, PagerDotIndicator } from "rn-viewpager";
 import CardGradient from "./components/CardGradient";
 
 class GreetingStarted extends Component {
+  static navigationOptions= {
+    header: null
+  }
   render() {
     return (
-      <Container>
+      <Container style={{backgroundColor: "#FFF"}}>
         <Grid>
           <Col>
             <Row size={1.5} style={styles.logan}>
@@ -74,7 +77,8 @@ class GreetingStarted extends Component {
               </IndicatorViewPager>
             </Row>
             <Row size={2.5} style={styles.bottomContainer}>
-              <TouchableOpacity style={styles.btnBottom}>
+              <TouchableOpacity style={styles.btnBottom}
+                onPress={()=> this.props.navigation.navigate("SignUp")}>
                 <Text style={styles.btnText}>Get Started</Text>
               </TouchableOpacity>
             </Row>
