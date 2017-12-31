@@ -7,7 +7,7 @@
 // }
 import React, { Component } from "react";
 import { Text, Image, TouchableOpacity, View, Dimensions } from "react-native";
-import { Root } from "native-base";
+import { Root,Toast} from "native-base";
 import AppNav from "./router";
 import {
   GreetingScreen,
@@ -21,6 +21,7 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Modal from "react-native-modal";
+import { connect } from 'react-redux';
 
 const { height, width } = Dimensions.get("window");
 
@@ -33,6 +34,7 @@ class RootApp extends Component {
       <Root>
         <AppNav />
       {this.state.isCalling ? this._renderModalReceiveCall() : null}
+      
       </Root>
     );
   }

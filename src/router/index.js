@@ -13,10 +13,8 @@ class AppNav extends PureComponent {
       dispatch: this.props.dispatch,
       state: this.props.nav
     });
-    if (this.props.auth.isLoged) {
-      console.log("================sasasasas====================");
-      console.log(this.props.auth.isLoged);
-      console.log("====================================");
+    if (this.props.auth.isLogin) {
+      
       return <Authorizated navigation={navigation} />;
     }
     return <UnAuthorizated />;

@@ -1,17 +1,28 @@
 import RNQuicklox from "../../QuickbloxManager";
 
 export const LOGIN = "LOGIN";
+export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
+export const LOGIN_ERROR = "LOGIN_ERROR";
+
 export const REGISTER = "REGISTER";
+export const REGISTER_SUCCESS = "REGISTER_SUCCESS";
+export const REGISTER_ERROR = "REGISTER_ERROR";
 
 const quickblox = new RNQuicklox();
 export const login = (username, password) => {
   return dispatch => {
+    dispatch({
+      type: LOGIN
+    });
     quickblox.login(username, password, data => {
-      console.log('====================================');
-      console.log(data);
-      console.log('====================================');
-     return dispatch({
-        type: LOGIN,
+      if (typeof data === "object" && data.errors) {
+        return dispatch({
+          type: LOGIN_ERROR,
+          payload: data
+        });
+      }
+      return dispatch({
+        type: LOGIN_SUCCESS,
         payload: data
       });
     });
@@ -19,9 +30,18 @@ export const login = (username, password) => {
 };
 export const register = (username, password, fullname, email) => {
   return dispatch => {
+    dispatch({
+      type: REGISTER
+    });
     quickblox.signUp(username, password, fullname, email, data => {
-      dispatch({
-        type: REGISTER,
+      if (typeof data === "object") {
+        return dispatch({
+          type: REGISTER_ERROR,
+          payload: data
+        });
+      }
+      return dispatch({
+        type: REGISTER_SUCCESS,
         payload: data
       });
     });

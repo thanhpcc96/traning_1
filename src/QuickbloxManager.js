@@ -9,10 +9,10 @@ export const USER_HUNG_UP = "USER_HUNG_UP";
 export const SESSION_DID_CLOSE = "SESSION_DID_CLOSE";
 export const RECEIVE_IMCOMING_MESSAGE = "RECEIVE_IMCOMING_MESSAGE";
 
-const APP_ID = "65913";
-const AUTH_KEY = "S7wGTmdLV4Np8cs";
-const AUTH_SECRET = "GFMUzTPryFggTGR";
-const ACCOUNT_KEY = "qAz3cN5pzqMhEY7oMks-";
+const APP_ID = "66495";
+const AUTH_KEY = "AdO8FBmSRgs3gzP";
+const AUTH_SECRET = "XY3FtrNM9Xn9S6Z";
+const ACCOUNT_KEY = "t8uFXHsqx9P_YS74SmrW";
 
 const QuickbloxModule = new NativeEventEmitter(RNQuickblox);
 
@@ -32,12 +32,7 @@ export default class {
 
   init() {
     // RNQuickblox.setupQuickblox(APP_ID, AUTH_KEY, AUTH_SECRET, ACCOUNT_KEY);
-    RNQuickblox.setupQuickblox(
-      "44519",
-      "YqHTqrJPDkAzht3",
-      "fgYy8K3hL6LKHaS",
-      "6XDmKdXBfwPuJsWv9Fxp"
-    );
+    RNQuickblox.setupQuickblox(APP_ID, AUTH_KEY, AUTH_SECRET, ACCOUNT_KEY);
     // RNQuickblox.setupQuickblox("65913", "S7wGTmdLV4Np8cs", "GFMUzTPryFggTGR", "qAz3cN5pzqMhEY7oMks-");
   }
 
@@ -81,21 +76,28 @@ export default class {
   getUsers(callback) {
     // if (Platform.OS === "android") RNQuickblox.getUsers(page, limit, users);
     // else RNQuickblox.getUsers(users);
-    RNQuickblox.getUsers(callback);
+    RNQuickblox.getUsers(data=>{
+      console.log("data", typeof data)
+      const obj= JSON.parse(data);
+      if(callback) callback(obj)
+    });
   }
 
   login(userName, password, cb) {
-    RNQuickblox.connectUser(userName, password, qbId => {
-      console.log('==================login id==================');
-      console.log(qbId);
-      console.log('====================================');
-      if (cb) cb(qbId);
+    RNQuickblox.connectUser(userName, password, data => {
+      console.log("typeof data login ", typeof data)
+      console.log(data)
+      let obj;
+      typeof data === "number" ? (obj = data) : (obj = JSON.parse(data));
+      if (cb) cb(obj);
     });
   }
 
   signUp(userName, password, realName, email, complete) {
-    RNQuickblox.signUp(userName, password, realName, email, () => {
-      if (complete) complete({ userName, password });
+    RNQuickblox.signUp(userName, password, realName, email, data => {
+      let obj;
+      typeof data === "number" ? (obj = data) : (obj = JSON.parse(data));
+      if (complete) complete(obj);
     });
   }
 
@@ -184,42 +186,46 @@ export default class {
    * Chat
    */
   getListDialogs(cb) {
-    RNQuickblox.getListDialogsOfCurrentUser(null, data => {
+    RNQuickblox.getListDialogsOfCurrentUser( data => {
       if (cb) cb(data);
     });
   }
 
   // public void createPrivateDialog(final int friendID, final Callback callback)
-  createPrivateDialog(friendID, cb){
-    RNQuickblox.createPrivateDialog(friendID, data=> {
-      console.log('====================================');
+  createPrivateDialog(friendID, cb) {
+    RNQuickblox.createPrivateDialog(friendID, data => {
+      console.log("====================================");
       console.log("createPrivateDialog");
       console.log(data);
-      console.log('====================================');
-      if(cb) cb(data);
-    })
+      console.log("====================================");
+      if (cb) cb(data);
+    });
   }
-  
+
   //  public void initDialogForChat(final String idChatDialog, Callback callback)
-  initDialogForChat(idDialog){
+  initDialogForChat(idDialog) {
     RNQuickblox.initDialogForChat(idDialog);
   }
 
   // public void retrieveMessagesOfChatDialog(String idChatDialog, final Callback callback)
-  retrieveMessagesOfChatDialog(idChatDialog, callback){
-    RNQuickblox.retrieveMessagesOfChatDialog(idChatDialog, data=>{
-      console.log('===================retrieveMessagesOfChatDialog=================');
+  retrieveMessagesOfChatDialog(idChatDialog, callback) {
+    RNQuickblox.retrieveMessagesOfChatDialog(idChatDialog, data => {
+      console.log(
+        "===================retrieveMessagesOfChatDialog================="
+      );
       console.log(data);
-      console.log('================retrieveMessagesOfChatDialog====================');
-      if(callback) callback(data);
-    })
+      console.log(
+        "================retrieveMessagesOfChatDialog===================="
+      );
+      if (callback) callback(data);
+    });
   }
   // public void sendMessage(String dialogID, int friendId, String text, final Callback callback)
-  sendMessage(dialogID,friendID, text, callback){
-    RNQuickblox.sendMessage(dialogID, friendID,text, data =>{
-      console.log('================sendMessage====================');
+  sendMessage(dialogID, friendID, text, callback) {
+    RNQuickblox.sendMessage(dialogID, friendID, text, data => {
+      console.log("================sendMessage====================");
       console.log(data);
-      console.log('===============sendMessage=====================');
-    })
+      console.log("===============sendMessage=====================");
+    });
   }
 }

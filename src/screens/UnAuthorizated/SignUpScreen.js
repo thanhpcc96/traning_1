@@ -3,7 +3,8 @@ import {
   View,
   Image,
   KeyboardAvoidingView,
-  TouchableOpacity
+  TouchableOpacity,
+  Modal
 } from "react-native";
 import {
   Container,
@@ -15,11 +16,16 @@ import {
   Grid,
   Row,
   Col,
+  Item,
   Input
 } from "native-base";
 import { connect } from "react-redux";
 import { register } from "../../redux/actions/auth.action";
 import HeaderCustom from "../../common/Header";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import RNSpinkit from 'react-native-spinkit'
+
+const emailReg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
 class SignUpScreen extends Component {
   static navigationOptions = {
@@ -29,8 +35,44 @@ class SignUpScreen extends Component {
     fullname: "",
     email: "",
     username: "",
-    password: ""
+    password: "",
+    errorEmail: false,
+    errorUsername: false,
+    errorPassword: false
   };
+  validateEmail() {
+    if (!emailReg.test(this.state.email)) {
+      this.setState({
+        errorEmail: true
+      });
+      return;
+    }
+    this.setState({
+      errorEmail: false
+    });
+  }
+  validateUsername() {
+    if ((this.state.username.length = 0 || this.state.username === "")) {
+      this.setState({
+        errorUsername: true
+      });
+      return;
+    }
+    this.setState({
+      errorUsername: false
+    });
+  }
+  validatePassword() {
+    if (this.state.password.length < 6) {
+      this.setState({
+        errorPassword: true
+      });
+      return;
+    }
+    this.setState({
+      errorPassword: false
+    });
+  }
   inputFullname(value) {
     this.setState({
       fullname: value
@@ -51,8 +93,19 @@ class SignUpScreen extends Component {
       password: value
     });
   }
-  register(){
-    this.props.register(this.state.username, this.state.password, this.state.fullname, this.state.email);
+  register() {
+    if (
+      !this.state.errorEmail &&
+      !this.state.errorPassword &&
+      !this.state.errorUsername
+    ) {
+      this.props.register(
+        this.state.username,
+        this.state.password,
+        this.state.fullname,
+        this.state.email
+      );
+    }
   }
   render() {
     return (
@@ -94,35 +147,86 @@ class SignUpScreen extends Component {
                   <Text style={{ height: 15 }} note>
                     YOUR EMAIL
                   </Text>
-                  <Input
-                    style={styles.inputText}
-                    placeholderTextColor="#D5D5D5"
-                    placeholder="name@domain.com"
-                    onChangeText={this.inputEmail.bind(this)}
-                  />
+                  <View style={{ flexDirection: "row", height: 40 }}>
+                    <Input
+                      style={styles.inputText}
+                      placeholderTextColor="#D5D5D5"
+                      placeholder="name@domain.com"
+                      onChangeText={this.inputEmail.bind(this)}
+                      onEndEditing={this.validateEmail.bind(this)}
+                      onFocus={() => this.setState({ errorEmail: false })}
+                    />
+                    {this.state.errorEmail ? (
+                      <Ionicons
+                        name="ios-alert-outline"
+                        color="#FC2449"
+                        size={20}
+                      />
+                    ) : (
+                      undefined
+                    )}
+                  </View>
                 </View>
                 <View style={styles.formControl}>
                   <Text style={{ height: 15 }} note>
                     USERNAME
                   </Text>
-                  <Input
-                    style={styles.inputText}
-                    placeholderTextColor="#D5D5D5"
-                    placeholder="@yourusername"
-                    onChangeText={this.inputUsername.bind(this)}
-                  />
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      height: 40,
+                      alignItems: "center"
+                    }}
+                  >
+                    <Input
+                      style={styles.inputText}
+                      placeholderTextColor="#D5D5D5"
+                      placeholder="@yourusername"
+                      onChangeText={this.inputUsername.bind(this)}
+                      onEndEditing={this.validateUsername.bind(this)}
+                      onFocus={() => this.setState({ errorUsername: false })}
+                    />
+                    {this.state.errorUsername ? (
+                      <Ionicons
+                        name="ios-alert-outline"
+                        color="#FC2449"
+                        size={20}
+                      />
+                    ) : (
+                      undefined
+                    )}
+                  </View>
                 </View>
                 <View style={styles.formControl}>
                   <Text style={{ height: 15 }} note>
                     CREATE PASSWORD
                   </Text>
-                  <Input
-                    style={styles.inputText}
-                    placeholderTextColor="#D5D5D5"
-                    placeholder="Min 8 symbols"
-                    secureTextEntry
-                    onChangeText={this.inputPassword.bind(this)}
-                  />
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      height: 40,
+                      alignItems: "center"
+                    }}
+                  >
+                    <Input
+                      style={styles.inputText}
+                      placeholderTextColor="#D5D5D5"
+                      placeholder="Min 6 symbols"
+                      secureTextEntry
+                      onChangeText={this.inputPassword.bind(this)}
+                      onEndEditing={this.validatePassword.bind(this)}
+                      onFocus={() => this.setState({ errorPassword: false })}
+                    />
+                    {this.state.errorPassword ? (
+                      <Ionicons
+                        name="ios-alert-outline"
+                        color="#FC2449"
+                        size={20}
+                      />
+                    ) : (
+                      undefined
+                    )}
+                  </View>
                 </View>
               </Row>
             </Row>
@@ -158,18 +262,54 @@ class SignUpScreen extends Component {
             </Row>
           </Content>
         </Grid>
+        {this.props.isLoading ? (
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={true}
+            onRequestClose={() => {
+              console.log("android click back");
+            }}
+          >
+            <View
+              style={[
+                styles.container2,
+                { backgroundColor: "rgba(0, 0, 0, 0.2)" }
+              ]}
+            >
+              <View style={[styles.innerContainer]}>
+                <RNSpinkit
+                  isVisible={true}
+                  size={60}
+                  type="ThreeBounce"
+                  color="#4286f4"
+                />
+                <Text>Please wait......</Text>
+              </View>
+            </View>
+          </Modal>
+        ) : (
+          undefined
+        )}
       </Container>
     );
   }
 }
 export default connect(
   state => ({
-    register: state.register
+    register: state.auth.register,
+    error: state.auth.error,
+    isLoading: state.auth.isLoading
   }),
   {
     register
   }
 )(SignUpScreen);
+
+
+
+
+
 const styles = {
   container: {
     flexDirection: "column"
@@ -226,5 +366,18 @@ const styles = {
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center"
+  },
+  container2: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20
+  },
+  innerContainer: {
+    borderRadius: 10,
+    alignItems: "center",
+    backgroundColor: "#fff",
+    paddingBottom: 20,
+    width: 280
   }
 };

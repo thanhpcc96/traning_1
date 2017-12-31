@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   ScrollView,
   FlatList,
-  Platform
+  Platform,
+  Modal
 } from "react-native";
 import {
   Container,
@@ -22,8 +23,12 @@ import {
   ListItem,
   Badge
 } from "native-base";
-import Modal from "react-native-modal";
+import ModalCustom from "react-native-modal";
 import RNGradient from "react-native-linear-gradient";
+import RNSpinkit from "react-native-spinkit";
+import { connect } from "react-redux";
+
+import { loadDialogs, getListUsers } from "../../redux/actions/chat.action";
 
 import HeaderCustom from "../../common/Header";
 
@@ -36,6 +41,10 @@ class MainScreen extends Component {
   state = {
     isModalVisible: false
   };
+  componentDidMount() {
+    //this.props.loadDialogs();
+    this.props.getListUsers();
+  }
   render() {
     return (
       <Container style={{ backgroundColor: "#FFF" }}>
@@ -57,27 +66,60 @@ class MainScreen extends Component {
             </Right>
           }
         />
-        <Grid>
-          <Row size={2} style={styles.searchContainer}>
-            <View style={styles.txtSearch}>
-              <Input placeholder="Search" placeholderTextColor="#D5D5D5" />
+        {this.props.loadedUsers ? (
+          <Grid>
+            <Row size={2} style={styles.searchContainer}>
+              <View style={styles.txtSearch}>
+                <Input placeholder="Search" placeholderTextColor="#D5D5D5" />
+              </View>
+            </Row>
+            <Row size={15}>
+              <FlatList
+                keyExtractor={(item, index) => index}
+                data={this.props.listUsers}
+                renderItem={({item, index}) => this._renderItem({item, index})}
+              />
+            </Row>
+          </Grid>
+        ) : (
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={true}
+            onRequestClose={() => {
+              console.log("android click back");
+            }}
+          >
+            <View
+              style={[
+                styles.container,
+                { backgroundColor: "rgba(0, 0, 0, 0.2)" }
+              ]}
+            >
+              <View style={[styles.innerContainer]}>
+                <RNSpinkit
+                  isVisible={true}
+                  size={60}
+                  type="ThreeBounce"
+                  color="#4286f4"
+                />
+                <Text>Loading data.....</Text>
+              </View>
             </View>
-          </Row>
-          <Row size={15}>
-            <FlatList
-              keyExtractor={(item, index) => index}
-              data={[1, 2, 3, 4, 5, 6, 7, 8]}
-              renderItem={(item, index) => this._renderItem()}
-            />
-          </Row>
-        </Grid>
+          </Modal>
+        )}
         {this._renderModal()}
       </Container>
     );
   }
-  _renderItem() {
+  _renderItem({item, index}) {
+    console.log('=================item===================');
+    console.log(item);
+    console.log('=================index===================');
+    console.log(index);
+    console.log('====================================');
     return (
-      <ListItem
+      <ListItem key={index}
         style={styles.listItem}
         onPress={() => this.props.navigation.navigate("Chat")}
       >
@@ -90,14 +132,13 @@ class MainScreen extends Component {
         />
         <Body style={{ height: 70 }}>
           <View style={styles.contentItem}>
-            <Text>Friend 1</Text>
+            <Text>{item.full_name}</Text>
             <Badge>
               <Text>2</Text>
             </Badge>
           </View>
           <Text style={{ fontSize: 18 }} note>
-            {" "}
-            Tell me something....
+            {"@"+item.login}
           </Text>
         </Body>
         <Right style={styles.right}>
@@ -108,7 +149,7 @@ class MainScreen extends Component {
   }
   _renderModal() {
     return (
-      <Modal style={styles.modal} isVisible={this.state.isModalVisible}>
+      <ModalCustom isVisible={this.state.isModalVisible}>
         <View style={styles.modalContainer}>
           <View style={styles.infoContainer}>
             <Image
@@ -182,11 +223,22 @@ class MainScreen extends Component {
             <Icon name="md-close" style={{ fontSize: 20 }} />
           </TouchableOpacity>
         </View>
-      </Modal>
+      </ModalCustom>
     );
   }
 }
-export default MainScreen;
+export default connect(
+  state => ({
+    listUsers: state.chat.listUsers,
+    loadedUsers: state.chat.loadedUsers,
+    errorUser: state.chat.errorUser
+  }),
+  {
+    loadDialogs,
+    getListUsers
+  }
+)(MainScreen);
+
 const styles = {
   searchContainer: {
     backgroundColor: "#FFF",
@@ -232,7 +284,8 @@ const styles = {
     height: height * 0.95,
     width: width * 0.95,
     backgroundColor: "#FFF",
-    borderRadius: 20
+    borderRadius: 20,
+    padding: Platform.OS === "ios" ? 0 : 15
   },
   modalBtnClose: {
     position: "absolute",
@@ -286,5 +339,18 @@ const styles = {
   menuSelect: {
     fontSize: Platform.OS == "ios" ? 25 : 18,
     marginTop: "3%"
+  },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20
+  },
+  innerContainer: {
+    borderRadius: 10,
+    alignItems: "center",
+    backgroundColor: "#fff",
+    paddingBottom: 20,
+    width: 280
   }
 };
