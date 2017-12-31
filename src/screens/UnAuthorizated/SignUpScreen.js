@@ -23,7 +23,7 @@ import { connect } from "react-redux";
 import { register } from "../../redux/actions/auth.action";
 import HeaderCustom from "../../common/Header";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import RNSpinkit from 'react-native-spinkit'
+import RNSpinkit from "react-native-spinkit";
 
 const emailReg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
@@ -147,7 +147,7 @@ class SignUpScreen extends Component {
                   <Text style={{ height: 15 }} note>
                     YOUR EMAIL
                   </Text>
-                  <View style={{ flexDirection: "row", height: 40 }}>
+                  <View style={{ flexDirection: "row", height: 45 }}>
                     <Input
                       style={styles.inputText}
                       placeholderTextColor="#D5D5D5"
@@ -174,8 +174,7 @@ class SignUpScreen extends Component {
                   <View
                     style={{
                       flexDirection: "row",
-                      height: 40,
-                      alignItems: "center"
+                      height: 45
                     }}
                   >
                     <Input
@@ -204,8 +203,7 @@ class SignUpScreen extends Component {
                   <View
                     style={{
                       flexDirection: "row",
-                      height: 40,
-                      alignItems: "center"
+                      height: 45
                     }}
                   >
                     <Input
@@ -306,10 +304,6 @@ export default connect(
   }
 )(SignUpScreen);
 
-
-
-
-
 const styles = {
   container: {
     flexDirection: "column"
@@ -344,7 +338,7 @@ const styles = {
     justifyContent: "space-around"
   },
   formControl: {
-    height: 60,
+    height: 65,
     width: "85%",
     backgroundColor: "white",
     marginLeft: "7%",
@@ -352,7 +346,7 @@ const styles = {
   },
   inputText: {
     height: 40,
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "300"
   },
   btnContainer: {

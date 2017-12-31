@@ -13,7 +13,10 @@ const initLoadDialog = {
   listDialogs: null,
   loadedUsers: false,
   listUsers: null,
-  errorUser: null
+  errorUser: null,
+  dialog: null,
+  oldMessage: null,
+  send: null
 };
 export default function(state = initLoadDialog, { type, payload }) {
   switch (type) {
@@ -43,6 +46,21 @@ export default function(state = initLoadDialog, { type, payload }) {
         listUsers: null,
         errorUser: payload
       };
+    case CREATE_CHAT_DIALOG:
+      return {
+        ...state,
+        dialog: payload
+      }
+    case LOAD_OLD_MESSAGE_OF_DIALOG:
+      return {
+        ...state,
+        oldMessage: payload
+      }
+    case SEND_MESSAGE:
+      return {
+        ...state,
+        send: payload
+      }
     default:
       return state;
   }

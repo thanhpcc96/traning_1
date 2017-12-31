@@ -21,31 +21,54 @@ import {
   Badge
 } from "native-base";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
-
+import { connect } from "react-redux";
 import ImagePicker from "react-native-image-picker";
-import { GiftedChat, Bubble, InputToolbar, MessageContainer} from "react-native-gifted-chat";
-import Modal from 'react-native-modal';
+import {
+  GiftedChat,
+  Bubble,
+  InputToolbar,
+  MessageContainer
+} from "react-native-gifted-chat";
+import Modal from "react-native-modal";
 //import FontAwesome from "react-native-vector-icons/FontAwesome";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Ionicons from "react-native-vector-icons/Ionicons";
+
+import {
+  createDialog,
+  loadOldMessage,
+  initForChat,
+  sendMessage
+} from "../../redux/actions/chat.action";
 import HeaderCustom from "../../common/Header";
 import { data } from "./fakeData";
 
+const count = 0;
 class ChatScreenOffical extends Component {
-  static navigationOptions= {
+  static navigationOptions = {
     header: null
-  }
-  state = {
-    messages: data,
-    isTouchCompose: false
   };
-  renderInputToolbar(props){
-      return(
-        <View style={{height: 64, backgroundColor: "red", width: "100%"}}>
-            <View style={{height: 44, width: "100%", backgroundColor: "green"}}></View>
-            <View style={{height: 20, width: "100%", backgroundColor: "blue"}}></View>
-        </View>
-      )
+  state = {
+    messages: [],
+    isTouchCompose: false,
+    idDialog: null
+  };
+  componentWillMount() {
+    this.props.createDialog(this.props.navigation.state.params.idFriend);
+  }
+  componentWillReceiveProps(nextProps) {
+    console.log("componentWillReceiveProps");
+    if (nextProps.dialog && count < 1) {
+      initForChat(nextProps.dialog.id);
+      this.props.loadOldMessage(nextProps.dialog.id);
+      this.setState({ idDialog: nextProps.dialog.id });
+      count++;
+    }
+    if (nextProps.oldMessage !== null) {
+      this.setState({
+        messages: nextProps.oldMessage
+      });
+    }
   }
   renderBubble(props) {
     return (
@@ -68,63 +91,117 @@ class ChatScreenOffical extends Component {
       />
     );
   }
+  sendMessage(text,uuid) {
+    const { login }= this.props;
+    const message= {
+      _id: uuid(),
+      text: text,
+      createdAt: new Date(),
+      user: {
+        id: login ,
+      }
+    }
+    this.props.sendMessage(
+      this.state.idDialog,
+      this.props.navigation.state.params.idFriend,
+      text
+    );
+    this.setState((previousState) => {
+      return {
+        messages: GiftedChat.append(previousState.messages, message),
+      };
+    })
+  }
   renderInputToolbar2(props) {
-      console.log('====================================');
-      console.log(this.state);
-      console.log('====================================');
+    console.log("==================renderInputToolbar2==================");
+    console.log(props);
+    console.log("====================================");
     return (
       <View {...props} style={styles.ComposerContainer}>
-        {!this.state.isTouchCompose ? <View style={styles.groupButton}>
-        <Icon
-          name="ios-add-circle-outline"
-          style={{ color: "#FF9800", fontSize: 28 }}
-        />
-        <Icon
-          name="ios-camera-outline"
-          style={{ color: "#98AAB0", fontSize: 28 }}
-        />
-        <Icon
-          name="ios-image-outline"
-          style={{ color: "#98AAB0", fontSize: 28 }}
-          //onPress={this.renderPicker.bind(this)}
-        />
-        <Icon
-          name="ios-mic-outline"
-          style={{ color: "#98AAB0", fontSize: 28 }}
-        />
-      </View> : null}
-        <View style={this.state.isTouchCompose ? styles.composerInputFull : styles.composerInput}>
+        {!this.state.isTouchCompose ? (
+          <View style={styles.groupButton}>
+            <Icon
+              name="ios-add-circle-outline"
+              style={{ color: "#FC2449", fontSize: 28 }}
+            />
+            <Icon
+              name="ios-camera-outline"
+              style={{ color: "#98AAB0", fontSize: 28 }}
+            />
+            <Icon
+              name="ios-image-outline"
+              style={{ color: "#98AAB0", fontSize: 28 }}
+              //onPress={this.renderPicker.bind(this)}
+            />
+            <Icon
+              name="ios-mic-outline"
+              style={{ color: "#98AAB0", fontSize: 28 }}
+            />
+          </View>
+        ) : (
+          <Icon
+            name="md-add-circle"
+            style={{ color: "#FC2449", fontSize: 33, marginLeft: 5 }}
+            onPress={()=> this.setState({ isTouchCompose : false })}
+          />
+        )}
+        <View
+          style={
+            this.state.isTouchCompose
+              ? styles.composerInputFull
+              : styles.composerInput
+          }
+        >
           <Input
             placeholder="Nhập nội dung chat"
+            style={{backgroundColor: "transparent"}}
             onChangeText={props.onTextChanged}
-            onFocus={()=> this.setState({isTouchCompose : true})}
+            multiline
+            onFocus={() => this.setState({ isTouchCompose: true })}
+            onTouchStart={()=> this.setState({ isTouchCompose:  true})}
             ref={textInput => (this.textEdit = textInput)}
           />
-          <View style={{ height: 34, width: 34, borderRadius: 17, backgroundColor: "#FC2449", justifyContent: "center", alignItems: "center"}}>
-          <Icon
-            name="md-arrow-round-forward"
-            style={{  fontSize: 20, marginLeft: 10, marginRight: 10}}
-            //onPress={() => con
+          <View
+            style={{
+              height: 34,
+              width: 34,
+              borderRadius: 17,
+              backgroundColor: "#FC2449",
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+          >
+            <Icon
+              name="md-arrow-round-forward"
+              style={{ fontSize: 20, marginLeft: 10, marginRight: 10 }}
+              //onPress={() => con
               //this.onSend2(props.text, props.user, props.messageIdGenerator)
-            //}
-          />
+              //}
+              onPress={() => this.sendMessage(props.text, props.messageIdGenerator)}
+            />
           </View>
         </View>
       </View>
     );
   }
-//   renderMessage(props){
-//     return(
-//         <MessageContainer {...props}  />
-//     )
-//   }
+  //   renderMessage(props){
+  //     return(
+  //         <MessageContainer {...props}  />
+  //     )
+  //   }
   render() {
+    console.log("==============this.props.navigation======================");
+    console.log(this.props.navigation);
+    console.log("====================================");
     return (
-      <Container style={{backgroundColor: "#FFF"}}>
+      <Container style={{ backgroundColor: "#FFF" }}>
         <HeaderCustom
           left={
             <Left style={{ flexDirection: "row", alignItems: "center" }}>
-              <Icon name="ios-arrow-back" onPress={()=> this.props.navigation.goBack()}/>
+              <Icon
+                name="ios-arrow-back"
+                onPress={() => this.props.navigation.goBack()}
+              />
               <Text style={{ fontSize: 20, fontWeight: "500", marginLeft: 10 }}>
                 Thanh Pham
               </Text>
@@ -145,7 +222,7 @@ class ChatScreenOffical extends Component {
                 name="video-camera"
                 size={23}
                 style={{ marginRight: 20 }}
-                onPress={()=> this.props.navigation.navigate("CallVideo")}
+                onPress={() => this.props.navigation.navigate("CallVideo")}
               />
               <FontAwesome name="phone" size={23} style={{ marginRight: 10 }} />
             </Right>
@@ -155,7 +232,7 @@ class ChatScreenOffical extends Component {
           // showUserAvatar
           messages={this.state.messages}
           user={{
-            _id: 1
+            id: this.props.login
           }}
           renderBubble={this.renderBubble.bind(this)}
           renderTime={props => <View />}
@@ -170,15 +247,13 @@ class ChatScreenOffical extends Component {
       </Container>
     );
   }
-  renderFooter(props){
-      return(
-          <View style={{ marginBottom: 10}} />
-      )
+  renderFooter(props) {
+    return <View style={{ marginBottom: 10 }} />;
   }
-  renderModalVoiceCall(){
-    return(
+  renderModalVoiceCall() {
+    return (
       <Modal
-        isVisible={true}
+        isVisible={false}
         style={styles.modal}
         backdropColor="#5B5B5B"
         animationInTiming={10}
@@ -217,109 +292,120 @@ class ChatScreenOffical extends Component {
           </TouchableOpacity>
         </View>
       </Modal>
-    )
+    );
   }
 }
-export default ChatScreenOffical;
+export default connect(
+  state => ({
+    dialog: state.chat.dialog,
+    oldMessage: state.chat.oldMessage,
+    login: state.auth.login
+  }),
+  {
+    createDialog,
+    loadOldMessage,
+    sendMessage
+  }
+)(ChatScreenOffical);
 const styles = StyleSheet.create({
-    footerContainer: {
-      marginTop: 5,
-      marginLeft: 10,
-      marginRight: 10,
-      marginBottom: 10
-    },
-    footerText: {
-      fontSize: 14,
-      color: "#aaa"
-    },
-    ComposerContainer: {
-      
-      width: "100%",
-      flexDirection: "row",
-      alignItems: "center",
-      bottom: 0,
-      //position: "absolute"
-    },
-    groupButton: {
-      flex: 0.4,
-      flexDirection: "row",
-      justifyContent: "space-around",
-      alignItems: "center"
-    },
-    composerInput: {
-      flex: 0.6,
-      flexDirection: "row",
-      borderRadius: 20,
-      borderWidth: 1,
-      borderColor: "#98AAB0",
-      justifyContent: "center",
-      alignItems: "center",
-      height: 36
-    },
-    composerInputFull: {
-      flex: 1,
-      flexDirection: "row",
-      borderRadius: 20,
-      borderWidth: 1,
-      borderColor: "#98AAB0",
-      justifyContent: "center",
-      alignItems: "center",
-      height: 36
-    },
-    modal: {
-      justifyContent: "center",
-      alignItems: "center"
-    },
-    modalContainer: {
-      height: "75%",
-      width: "85%",
-      backgroundColor: "#FFF",
-      borderRadius: 20
-    },
-    modalHeader: {
-      flex: 1,
-      backgroundColor: "transparent",
-      justifyContent: "center",
-      paddingLeft: 20
-    },
-    modalHeaderText: {
-      color: "#2A2A2A",
-      fontSize: 18
-    },
-    modalContent: {
-      flex: 6,
-      backgroundColor: "transparent",
-      alignItems: "center",
-      justifyContent: "space-around"
-    },
-    modalAvatar: {
-      height: 130,
-      width: 130,
-      borderRadius: 65
-    },
-    btnEndCall: {
-      backgroundColor: "#FC2449",
-      width: 70,
-      height: 70,
-      borderRadius: 35,
-      justifyContent: "center",
-      alignItems: "center"
-    },
-    modalFooter: {
-      flex: 1,
-      backgroundColor: "transparent",
-      justifyContent: "center",
-      paddingLeft: 20
-    },
-    modalClose: {
-      width: 34,
-      height: 34,
-      borderRadius: 17,
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor: "#F3F3F3",
-      position: "absolute",
-      top: 15,
-      right: 15
-    }
-  });
+  footerContainer: {
+    marginTop: 5,
+    marginLeft: 10,
+    marginRight: 10,
+    marginBottom: 10
+  },
+  footerText: {
+    fontSize: 14,
+    color: "#aaa"
+  },
+  ComposerContainer: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    bottom: 0
+    //position: "absolute"
+  },
+  groupButton: {
+    flex: 0.4,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center"
+  },
+  composerInput: {
+    flex: 0.6,
+    flexDirection: "row",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#98AAB0",
+    justifyContent: "center",
+    alignItems: "center",
+    height: 30
+  },
+  composerInputFull: {
+    flex: 1,
+    flexDirection: "row",
+    borderRadius: 20,
+    marginLeft: "3%",
+    borderWidth: 1,
+    borderColor: "#98AAB0",
+    //justifyContent: "center",
+    alignItems: "center",
+    height: 40
+  },
+  modal: {
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  modalContainer: {
+    height: "75%",
+    width: "85%",
+    backgroundColor: "#FFF",
+    borderRadius: 20
+  },
+  modalHeader: {
+    flex: 1,
+    backgroundColor: "transparent",
+    justifyContent: "center",
+    paddingLeft: 20
+  },
+  modalHeaderText: {
+    color: "#2A2A2A",
+    fontSize: 18
+  },
+  modalContent: {
+    flex: 6,
+    backgroundColor: "transparent",
+    alignItems: "center",
+    justifyContent: "space-around"
+  },
+  modalAvatar: {
+    height: 130,
+    width: 130,
+    borderRadius: 65
+  },
+  btnEndCall: {
+    backgroundColor: "#FC2449",
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  modalFooter: {
+    flex: 1,
+    backgroundColor: "transparent",
+    justifyContent: "center",
+    paddingLeft: 20
+  },
+  modalClose: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F3F3F3",
+    position: "absolute",
+    top: 15,
+    right: 15
+  }
+});

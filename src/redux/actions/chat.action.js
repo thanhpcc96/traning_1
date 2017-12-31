@@ -44,3 +44,39 @@ export const loadDialogs = () => {
       })
   };
 };
+export const createDialog=(friendID)=>{
+    return dispatch => {
+        quiclblox.createPrivateDialog(friendID, data=>{
+            return dispatch({
+                type: CREATE_CHAT_DIALOG,
+                payload: data
+            })
+        })
+    }
+}
+export const loadOldMessage= (idChatDialog)=>{
+    return dispatch=>{
+        quiclblox.retrieveMessagesOfChatDialog(idChatDialog, data =>{
+            console.log("retrieveMessagesOfChatDialog", data);
+            dispatch({
+                type: LOAD_OLD_MESSAGE_OF_DIALOG,
+                payload: data
+            })
+        })
+    }
+}
+export const initForChat =( idChatDialog) =>{
+    quiclblox.initDialogForChat(idChatDialog, ()=>{
+        console.log("initForChat OK")
+    });
+}
+export const sendMessage =(dialogID, friendID, text)=>{
+    return dispatch => {
+        quiclblox.sendMessage(dialogID, friendID, text, data=>{
+            dispatch({
+                type: SEND_MESSAGE,
+                payload: data
+            });
+        })
+    }
+}

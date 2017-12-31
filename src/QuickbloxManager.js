@@ -198,13 +198,14 @@ export default class {
       console.log("createPrivateDialog");
       console.log(data);
       console.log("====================================");
-      if (cb) cb(data);
+      const obj = JSON.parse(data)
+      if (cb) cb(obj);
     });
   }
 
   //  public void initDialogForChat(final String idChatDialog, Callback callback)
-  initDialogForChat(idDialog) {
-    RNQuickblox.initDialogForChat(idDialog);
+  initDialogForChat(idDialog, callback) {
+    RNQuickblox.initDialogForChat(idDialog, callback);
   }
 
   // public void retrieveMessagesOfChatDialog(String idChatDialog, final Callback callback)
@@ -217,7 +218,8 @@ export default class {
       console.log(
         "================retrieveMessagesOfChatDialog===================="
       );
-      if (callback) callback(data);
+      const obj= JSON.parse(data)
+      if (callback) callback(obj);
     });
   }
   // public void sendMessage(String dialogID, int friendId, String text, final Callback callback)

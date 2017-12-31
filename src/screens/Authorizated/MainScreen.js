@@ -28,7 +28,7 @@ import RNGradient from "react-native-linear-gradient";
 import RNSpinkit from "react-native-spinkit";
 import { connect } from "react-redux";
 
-import { loadDialogs, getListUsers } from "../../redux/actions/chat.action";
+import { loadDialogs, getListUsers,createDialog } from "../../redux/actions/chat.action";
 
 import HeaderCustom from "../../common/Header";
 
@@ -39,11 +39,25 @@ class MainScreen extends Component {
     header: null
   };
   state = {
-    isModalVisible: false
+    isModalVisible: false,
+    data : []
   };
   componentDidMount() {
     //this.props.loadDialogs();
     this.props.getListUsers();
+  }
+  selectItem(id){
+    this.props.navigation.navigate("Chat",{idFriend: id});
+  }
+  componentWillReceiveProps(nextProps){
+    if(nextProps.listUsers!==null){
+      const { login }= this.props;
+      const data =[]
+      nextProps.listUsers.forEach( item =>{
+        if( item.id !== login)  data.push(item)
+      });
+      this.setState({ data })
+    }
   }
   render() {
     return (
@@ -76,7 +90,7 @@ class MainScreen extends Component {
             <Row size={15}>
               <FlatList
                 keyExtractor={(item, index) => index}
-                data={this.props.listUsers}
+                data={this.state.data}
                 renderItem={({item, index}) => this._renderItem({item, index})}
               />
             </Row>
@@ -113,15 +127,10 @@ class MainScreen extends Component {
     );
   }
   _renderItem({item, index}) {
-    console.log('=================item===================');
-    console.log(item);
-    console.log('=================index===================');
-    console.log(index);
-    console.log('====================================');
     return (
       <ListItem key={index}
         style={styles.listItem}
-        onPress={() => this.props.navigation.navigate("Chat")}
+        onPress={()=> this.selectItem(item.id)}
       >
         <Image
           source={{
@@ -231,11 +240,14 @@ export default connect(
   state => ({
     listUsers: state.chat.listUsers,
     loadedUsers: state.chat.loadedUsers,
-    errorUser: state.chat.errorUser
+    errorUser: state.chat.errorUser,
+    dialog: state.chat.dialog,
+    login: state.auth.login
   }),
   {
     loadDialogs,
-    getListUsers
+    getListUsers,
+    createDialog
   }
 )(MainScreen);
 
