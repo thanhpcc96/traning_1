@@ -43,7 +43,7 @@ import {
 import HeaderCustom from "../../common/Header";
 import { data } from "./fakeData";
 
-const count = 0;
+
 class ChatScreenOffical extends Component {
   static navigationOptions = {
     header: null
@@ -51,22 +51,57 @@ class ChatScreenOffical extends Component {
   state = {
     messages: [],
     isTouchCompose: false,
-    idDialog: null
+    idDialog: null,
+    haveContent: false,
+    count: 0
   };
   componentWillMount() {
     this.props.createDialog(this.props.navigation.state.params.idFriend);
   }
   componentWillReceiveProps(nextProps) {
-    console.log("componentWillReceiveProps");
-    if (nextProps.dialog && count < 1) {
+    const {login} = this.props;
+    if (nextProps.dialog && this.state.count <1) {
       initForChat(nextProps.dialog.id);
-      this.props.loadOldMessage(nextProps.dialog.id);
-      this.setState({ idDialog: nextProps.dialog.id });
-      count++;
+      this.props.loadOldMessage(nextProps.dialog._id);
+      this.setState({ idDialog: nextProps.dialog._id, count: 1});
+      
     }
-    if (nextProps.oldMessage !== null) {
+    if (nextProps.oldMessage !== null && nextProps.oldMessage._id === nextProps.dialog._id ) {
+      // {
+      //   _id: "5a4a4c5a6347833e13aec320",
+      //   senderId: 39923345,
+      //   recipientId: 39841524,
+      //   saveToHistory: false,
+      //   dateSent: 1514818650,
+      //   body: "null",
+      //   dialogId: "5a4a4c4ea0eb477c6a2eda8a"
+      // }
+    //   _id: Math.round(Math.random() * 1000000),
+    // text: "Are you building a chat app?",
+    // createdAt: new Date(Date.UTC(2016, 7, 30, 17, 20, 0)),
+    // user: {
+    //   _id: 2,
+    //   name: "React Native"
+    // }
+      const data =[];
+      nextProps.oldMessage.data.forEach(item=>{
+
+        const newItem={
+          _id: item._id,
+          text: item.body,
+          createdAt: new Date(item.dateSent),
+          dialogId: item.dialogId,
+          user: {
+            _id : item.senderId
+          },
+          senderId: item.senderId,
+          recipientId: item.recipientId,
+          saveToHistory: item.saveToHistory
+        }
+        data.push(newItem)
+      });
       this.setState({
-        messages: nextProps.oldMessage
+        messages: data.reverse()
       });
     }
   }
@@ -91,33 +126,44 @@ class ChatScreenOffical extends Component {
       />
     );
   }
-  sendMessage(text,uuid) {
-    const { login }= this.props;
-    const message= {
+  sendMessage(uuid) {
+    const { login } = this.props;
+    const { message }= this.state;
+    const newmessage = {
       _id: uuid(),
-      text: text,
+      text: message,
       createdAt: new Date(),
       user: {
-        id: login ,
+        _id: login
       }
-    }
+    };
     this.props.sendMessage(
       this.state.idDialog,
       this.props.navigation.state.params.idFriend,
-      text
+      message
     );
-    this.setState((previousState) => {
+    this.setState(previousState => {
       return {
-        messages: GiftedChat.append(previousState.messages, message),
+        messages: GiftedChat.append(previousState.messages, newmessage)
       };
-    })
+    });
+  }
+  inputMessage(value){
+    if(value.length>0){
+      this.setState({
+        message: value,
+        haveContent: true
+      })
+    }else{
+      this.setState({
+        message: "",
+        haveContent: false
+      })
+    }
   }
   renderInputToolbar2(props) {
-    console.log("==================renderInputToolbar2==================");
-    console.log(props);
-    console.log("====================================");
     return (
-      <View {...props} style={styles.ComposerContainer}>
+      <View style={styles.ComposerContainer}>
         {!this.state.isTouchCompose ? (
           <View style={styles.groupButton}>
             <Icon
@@ -139,60 +185,41 @@ class ChatScreenOffical extends Component {
             />
           </View>
         ) : (
-          <Icon
-            name="md-add-circle"
-            style={{ color: "#FC2449", fontSize: 33, marginLeft: 5 }}
-            onPress={()=> this.setState({ isTouchCompose : false })}
-          />
-        )}
-        <View
-          style={
-            this.state.isTouchCompose
-              ? styles.composerInputFull
-              : styles.composerInput
-          }
-        >
-          <Input
-            placeholder="Nhập nội dung chat"
-            style={{backgroundColor: "transparent"}}
-            onChangeText={props.onTextChanged}
-            multiline
-            onFocus={() => this.setState({ isTouchCompose: true })}
-            onTouchStart={()=> this.setState({ isTouchCompose:  true})}
-            ref={textInput => (this.textEdit = textInput)}
-          />
-          <View
-            style={{
-              height: 34,
-              width: 34,
-              borderRadius: 17,
-              backgroundColor: "#FC2449",
-              justifyContent: "center",
-              alignItems: "center"
-            }}
-          >
+          
             <Icon
-              name="md-arrow-round-forward"
-              style={{ fontSize: 20, marginLeft: 10, marginRight: 10 }}
-              //onPress={() => con
-              //this.onSend2(props.text, props.user, props.messageIdGenerator)
-              //}
-              onPress={() => this.sendMessage(props.text, props.messageIdGenerator)}
+              name="md-add-circle"
+              style={{ color: "#FC2449", fontSize: 33, marginLeft: 5 }}
+              onPress={() => this.setState({ isTouchCompose: false })}
             />
-          </View>
-        </View>
+         
+        )}
+        <TouchableOpacity
+          style={this.state.isTouchCompose? styles.composerInputFull :styles.composerInput}
+         onPress= {()=> this.setState({ isTouchCompose: true})}
+        >
+          <TextInput
+            style={{ fontSize: 12, minWidth: 140, marginLeft: 10 }}
+            placeholder="Type your message......"
+            underlineColorAndroid="transparent"
+            onFocus= {()=> this.setState({ isTouchCompose: true})}  
+            onChangeText={this.inputMessage.bind(this)}          
+          />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.btnSendMessage}
+          disabled={!this.state.haveContent}
+          onPress={()=> this.sendMessage(props.messageIdGenerator)}
+          >
+          <Icon
+          name="md-send"
+          style={this.state.haveContent ? styles.btnSendHaveContent: styles.btnSendNoContent}
+          />
+        </TouchableOpacity>
       </View>
     );
   }
-  //   renderMessage(props){
-  //     return(
-  //         <MessageContainer {...props}  />
-  //     )
-  //   }
+
   render() {
-    console.log("==============this.props.navigation======================");
-    console.log(this.props.navigation);
-    console.log("====================================");
+    const login = this.props.login;
     return (
       <Container style={{ backgroundColor: "#FFF" }}>
         <HeaderCustom
@@ -232,7 +259,7 @@ class ChatScreenOffical extends Component {
           // showUserAvatar
           messages={this.state.messages}
           user={{
-            id: this.props.login
+            _id: login
           }}
           renderBubble={this.renderBubble.bind(this)}
           renderTime={props => <View />}
@@ -322,36 +349,48 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
-    bottom: 0
+    bottom: 0,
+    height: 40
     //position: "absolute"
   },
   groupButton: {
-    flex: 0.4,
+    width: "40%",
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center"
   },
   composerInput: {
-    flex: 0.6,
+    width: "60%",
     flexDirection: "row",
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#98AAB0",
-    justifyContent: "center",
     alignItems: "center",
-    height: 30
+    //backgroundColor: "red",
+    borderWidth: 1,
+    borderColor: "grey",
+    height: 36
   },
   composerInputFull: {
     flex: 1,
     flexDirection: "row",
     borderRadius: 20,
-    marginLeft: "3%",
-    borderWidth: 1,
-    borderColor: "#98AAB0",
-    //justifyContent: "center",
     alignItems: "center",
-    height: 40
+   // backgroundColor: "red",
+    borderWidth: 1,
+    borderColor: "grey",
+    height: 36,
+    marginLeft: 5
   },
+  btnSendMessage: {
+    justifyContent:"center",
+    alignItems: "center", 
+    width: 40,            
+    height: 36,
+    },
+  btnSendHaveContent:{ fontSize: 24, color: "#FC2449"},
+  btnSendNoContent:{ fontSize: 24, color: "#98AAB0"},
+  /**
+   * Modall
+   */
   modal: {
     justifyContent: "center",
     alignItems: "center"
@@ -409,3 +448,37 @@ const styles = StyleSheet.create({
     right: 15
   }
 });
+
+/**
+ <View
+          style={
+            this.state.isTouchCompose
+              ? styles.composerInputFull
+              : styles.composerInput
+          }
+        >
+          <Input
+            placeholder="Nhập nội dung chat"
+            style={{ backgroundColor: "transparent" }}
+            onChangeText={props.onTextChanged}
+            multiline
+            onFocus={() => this.setState({ isTouchCompose: true })}
+            onTouchStart={() => this.setState({ isTouchCompose: true })}
+            ref={textInput => (this.textEdit = textInput)}
+          />
+          <TouchableOpacity
+            style={styles.btnSendMessage}
+            onPress={() =>
+              this.sendMessage(props.text, props.messageIdGenerator)
+            }
+          >
+            <Icon
+              name="md-arrow-round-forward"
+              style={{ fontSize: 20, marginLeft: 10, marginRight: 10 }}
+              //onPress={() => con
+              //this.onSend2(props.text, props.user, props.messageIdGenerator)
+              //}
+            />
+          </TouchableOpacity>
+        </View>
+ */

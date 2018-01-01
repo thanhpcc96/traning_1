@@ -65,28 +65,26 @@ export default class {
       RNQuickblox.USER_HUNG_UP,
       this.userHungUp.bind(this)
     );
-    if (Platform.OS === "android") {
-      QuickbloxModule.addListener(
-        RNQuickblox.RECEIVE_IMCOMING_MESSAGE,
-        this.receiveMessage.bind(this)
-      );
-    }
+    QuickbloxModule.addListener(
+      RNQuickblox.RECEIVE_IMCOMING_MESSAGE,
+      this.receiveMessage.bind(this)
+    );
   }
 
   getUsers(callback) {
     // if (Platform.OS === "android") RNQuickblox.getUsers(page, limit, users);
     // else RNQuickblox.getUsers(users);
-    RNQuickblox.getUsers(data=>{
-      console.log("data", typeof data)
-      const obj= JSON.parse(data);
-      if(callback) callback(obj)
+    RNQuickblox.getUsers(data => {
+      console.log("data", typeof data);
+      const obj = JSON.parse(data);
+      if (callback) callback(obj);
     });
   }
 
   login(userName, password, cb) {
     RNQuickblox.connectUser(userName, password, data => {
-      console.log("typeof data login ", typeof data)
-      console.log(data)
+      console.log("typeof data login ", typeof data);
+      console.log(data);
       let obj;
       typeof data === "number" ? (obj = data) : (obj = JSON.parse(data));
       if (cb) cb(obj);
@@ -176,7 +174,7 @@ export default class {
   }
   receiveMessage(data) {
     console.log("====================================");
-    console.log("receiveMessage");
+    console.log("receiveMessage tu trong android ra ne");
     console.log(data);
     console.log("====================================");
     this.store.dispatch({ type: RECEIVE_IMCOMING_MESSAGE, payload: data });
@@ -186,7 +184,7 @@ export default class {
    * Chat
    */
   getListDialogs(cb) {
-    RNQuickblox.getListDialogsOfCurrentUser( data => {
+    RNQuickblox.getListDialogsOfCurrentUser(data => {
       if (cb) cb(data);
     });
   }
@@ -198,7 +196,7 @@ export default class {
       console.log("createPrivateDialog");
       console.log(data);
       console.log("====================================");
-      const obj = JSON.parse(data)
+      const obj = JSON.parse(data);
       if (cb) cb(obj);
     });
   }
@@ -218,7 +216,7 @@ export default class {
       console.log(
         "================retrieveMessagesOfChatDialog===================="
       );
-      const obj= JSON.parse(data)
+      const obj = JSON.parse(data);
       if (callback) callback(obj);
     });
   }

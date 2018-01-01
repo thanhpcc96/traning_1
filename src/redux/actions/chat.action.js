@@ -57,10 +57,10 @@ export const createDialog=(friendID)=>{
 export const loadOldMessage= (idChatDialog)=>{
     return dispatch=>{
         quiclblox.retrieveMessagesOfChatDialog(idChatDialog, data =>{
-            console.log("retrieveMessagesOfChatDialog", data);
+            const newData= { _id : idChatDialog, data}
             dispatch({
                 type: LOAD_OLD_MESSAGE_OF_DIALOG,
-                payload: data
+                payload: newData
             })
         })
     }

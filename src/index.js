@@ -10,13 +10,7 @@ import { Text, Image, TouchableOpacity, View, Dimensions } from "react-native";
 import { Root,Toast} from "native-base";
 import AppNav from "./router";
 import {
-  GreetingScreen,
-  SignInScreen,
-  SignUpScreen,
-  ForgotScreen,
-  MainScreen,
-  ListCallsScreen,
-  ChatScreenOffical
+ ChatScreen
 } from "./screens";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
