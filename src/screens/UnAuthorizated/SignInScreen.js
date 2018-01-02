@@ -34,13 +34,11 @@ class SignIn extends Component {
     password: ""
   };
   inputUserName(value) {
-    console.log("username", value);
     this.setState({
       username: value.toLowerCase()
     });
   }
   inputPassword(value) {
-    console.log("password", value);
     this.setState({
       password: value
     });
@@ -110,8 +108,9 @@ class SignIn extends Component {
             </Left>
           }
         />
+        <Content contentContainerStyle={{ flex: 1 }}>
         <Grid>
-          <Content contentContainerStyle={{ flex: 1 }}>
+          
             <Row size={4} style={styles.LogoContainer}>
               <Image source={require("../../../assets/img/logo.png")} />
               <Text style={{ marginTop: 10, fontSize: 25 }}>
@@ -153,8 +152,8 @@ class SignIn extends Component {
                 </Text>
               </Row>
             </Row>
-          </Content>
-        </Grid>
+            </Grid>
+            </Content>
         {this.props.isLoading ? (
           <Modal
             animationType="fade"

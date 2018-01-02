@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "362096804323",
+    "project_id": "quickblox-3fd6c"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:362096804323:android:e0e51839f0399404",
+        "android_client_info": {
+          "package_name": "com.thanhhao.quickblox"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "362096804323-jsk0ts7h8nhige8bp399i697rvimlrrv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjCnxtABctKIAywebvcwu-3zGPVsSm0gE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

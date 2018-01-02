@@ -28,7 +28,10 @@ import RNGradient from "react-native-linear-gradient";
 import RNSpinkit from "react-native-spinkit";
 import { connect } from "react-redux";
 
-import { loadDialogs, getListUsers,createDialog } from "../../redux/actions/chat.action";
+import {
+  loadDialogs,
+  loadOldMessage
+} from "../../redux/actions/chat.action";
 
 import HeaderCustom from "../../common/Header";
 
@@ -40,23 +43,25 @@ class MainScreen extends Component {
   };
   state = {
     isModalVisible: false,
-    data : []
+    data: []
   };
   componentDidMount() {
     //this.props.loadDialogs();
-    this.props.getListUsers();
+    this.props.loadDialogs();
   }
-  selectItem(id){
-    this.props.navigation.navigate("Chat",{idFriend: id});
+  selectItem(id, name) {
+    this.props.navigation.navigate("Chat", { from : "main", dialogID: id, name });
   }
-  componentWillReceiveProps(nextProps){
-    if(nextProps.listUsers!==null){
-      const { login }= this.props;
-      const data =[]
-      nextProps.listUsers.forEach( item =>{
-        if( item.id !== login)  data.push(item)
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.listDialogs !== null) {
+      this.setState({ data: nextProps.listDialogs });
+      const dialogs =[];
+      nextProps.listDialogs.forEach(item=>{
+        dialogs.push(item._id)
       });
-      this.setState({ data })
+      this.props.loadOldMessage(dialogs);
+      
+
     }
   }
   render() {
@@ -80,7 +85,7 @@ class MainScreen extends Component {
             </Right>
           }
         />
-        {this.props.loadedUsers ? (
+        {this.props.loadedDialogs ? (
           <Grid>
             <Row size={2} style={styles.searchContainer}>
               <View style={styles.txtSearch}>
@@ -89,9 +94,11 @@ class MainScreen extends Component {
             </Row>
             <Row size={15}>
               <FlatList
-                keyExtractor={(item, index) => index}
                 data={this.state.data}
-                renderItem={({item, index}) => this._renderItem({item, index})}
+                renderItem={({ item, index }) =>
+                  this._renderItem({ item, index })
+                }
+                keyExtractor={(item, index) => index}
               />
             </Row>
           </Grid>
@@ -126,11 +133,15 @@ class MainScreen extends Component {
       </Container>
     );
   }
-  _renderItem({item, index}) {
+  _renderItem({ item, index }) {
+    const date = new Date(item.last_message_date_sent);
+    const minute= date.getMinutes() < 10 ? "0"+date.getMinutes() : date.getMinutes()
+    const time = date.getHours() + ":" + minute;
     return (
-      <ListItem key={index}
+      <ListItem
+        key={index}
         style={styles.listItem}
-        onPress={()=> this.selectItem(item.id)}
+        onPress={() => this.selectItem(item._id, item.name)}
       >
         <Image
           source={{
@@ -141,17 +152,17 @@ class MainScreen extends Component {
         />
         <Body style={{ height: 70 }}>
           <View style={styles.contentItem}>
-            <Text>{item.full_name}</Text>
+            <Text>{item.name}</Text>
             <Badge>
               <Text>2</Text>
             </Badge>
           </View>
           <Text style={{ fontSize: 18 }} note>
-            {"@"+item.login}
+            {item.last_message}
           </Text>
         </Body>
         <Right style={styles.right}>
-          <Text note> 8: 24 PM</Text>
+          <Text note>{time}</Text>
         </Right>
       </ListItem>
     );
@@ -238,16 +249,15 @@ class MainScreen extends Component {
 }
 export default connect(
   state => ({
-    listUsers: state.chat.listUsers,
-    loadedUsers: state.chat.loadedUsers,
-    errorUser: state.chat.errorUser,
+    listDialogs: state.chat.listDialogs,
+    loadedDialogs: state.chat.loadedDialogs,
+    errorDialogs: state.chat.errorDialogs,
     dialog: state.chat.dialog,
     login: state.auth.login
   }),
   {
     loadDialogs,
-    getListUsers,
-    createDialog
+    loadOldMessage
   }
 )(MainScreen);
 

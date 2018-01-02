@@ -14,18 +14,24 @@ const AUTH_KEY = "AdO8FBmSRgs3gzP";
 const AUTH_SECRET = "XY3FtrNM9Xn9S6Z";
 const ACCOUNT_KEY = "t8uFXHsqx9P_YS74SmrW";
 
-const QuickbloxModule = new NativeEventEmitter(RNQuickblox);
+
 
 let instance = null;
 
 export default class {
   constructor(store) {
-    if (!instance) {
+    console.log("=================constructor(store)===================");
+    console.log(store);
+    console.log("====================================");
+    if (store || !instance) {
+      console.log("=================constructor(store) trong if===================");
+      console.log(store);
+      console.log("====================================");
       instance = this;
       this.subscriber = [];
       this.userActionSubcriber = [];
       this.store = store;
-      this.registerEvents();
+      //this.registerEvents();
     }
     return instance;
   }
@@ -44,32 +50,7 @@ export default class {
     this.userActionSubcriber = subscriber;
   }
 
-  registerEvents() {
-    QuickbloxModule.addListener(
-      RNQuickblox.DID_RECEIVE_CALL_SESSION,
-      this.receiveCall.bind(this)
-    );
-    QuickbloxModule.addListener(
-      RNQuickblox.USER_ACCEPT_CALL,
-      this.userAcceptCall.bind(this)
-    );
-    QuickbloxModule.addListener(
-      RNQuickblox.USER_REJECT_CALL,
-      this.userRejectCall.bind(this)
-    );
-    QuickbloxModule.addListener(
-      RNQuickblox.SESSION_DID_CLOSE,
-      this.sessionDidClose.bind(this)
-    );
-    QuickbloxModule.addListener(
-      RNQuickblox.USER_HUNG_UP,
-      this.userHungUp.bind(this)
-    );
-    QuickbloxModule.addListener(
-      RNQuickblox.RECEIVE_IMCOMING_MESSAGE,
-      this.receiveMessage.bind(this)
-    );
-  }
+  
 
   getUsers(callback) {
     // if (Platform.OS === "android") RNQuickblox.getUsers(page, limit, users);
@@ -177,7 +158,9 @@ export default class {
     console.log("receiveMessage tu trong android ra ne");
     console.log(data);
     console.log("====================================");
-    this.store.dispatch({ type: RECEIVE_IMCOMING_MESSAGE, payload: data });
+    console.log(this.store)
+    console.log("====================================");
+    this.store.dispatch({ type: RECEIVE_IMCOMING_MESSAGE, payload: data});
   }
 
   /**
@@ -185,7 +168,8 @@ export default class {
    */
   getListDialogs(cb) {
     RNQuickblox.getListDialogsOfCurrentUser(data => {
-      if (cb) cb(data);
+      const obj= JSON.parse(data)
+      if (cb) cb(obj);
     });
   }
 
@@ -209,20 +193,13 @@ export default class {
   // public void retrieveMessagesOfChatDialog(String idChatDialog, final Callback callback)
   retrieveMessagesOfChatDialog(idChatDialog, callback) {
     RNQuickblox.retrieveMessagesOfChatDialog(idChatDialog, data => {
-      console.log(
-        "===================retrieveMessagesOfChatDialog================="
-      );
-      console.log(data);
-      console.log(
-        "================retrieveMessagesOfChatDialog===================="
-      );
       const obj = JSON.parse(data);
       if (callback) callback(obj);
     });
   }
   // public void sendMessage(String dialogID, int friendId, String text, final Callback callback)
-  sendMessage(dialogID, friendID, text, callback) {
-    RNQuickblox.sendMessage(dialogID, friendID, text, data => {
+  sendMessage(dialogID, text, callback) {
+    RNQuickblox.sendMessage(dialogID, text, data => {
       console.log("================sendMessage====================");
       console.log(data);
       console.log("===============sendMessage=====================");

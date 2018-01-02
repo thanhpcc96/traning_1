@@ -43,7 +43,6 @@ import {
 import HeaderCustom from "../../common/Header";
 import { data } from "./fakeData";
 
-
 class ChatScreenOffical extends Component {
   static navigationOptions = {
     header: null
@@ -53,57 +52,102 @@ class ChatScreenOffical extends Component {
     isTouchCompose: false,
     idDialog: null,
     haveContent: false,
-    count: 0
+    count: 0,
+    nameChat: "",
+    idFriend: null
   };
   componentWillMount() {
-    this.props.createDialog(this.props.navigation.state.params.idFriend);
+    //from : "main", dialogID: id
+    //console.log("params",  this.props.navigation.state.params)
+    console.log("props", this.props);
+    const params = this.props.navigation.state.params;
+    initForChat(params.dialogID);
+    if (params.from === "main") {
+      // const data=[]
+      // this.props.oldMessage.forEach(i=>{
+      //   console.log("item", i)
+      //   if(i._id===params.dialogID){
+      //     i.data.forEach(item=>{
+      //       const newItem={
+      //         _id: item._id,
+      //         text: item.body,
+      //         createdAt: new Date(item.dateSent),
+      //         dialogId: item.dialogId,
+      //         user: {
+      //           _id : item.senderId
+      //         },
+      //         senderId: item.senderId,
+      //         recipientId: item.recipientId,
+      //         saveToHistory: item.saveToHistory
+      //       }
+      //       data.push(newItem)
+      //     })
+      const messages = this.props.oldMessage.find(this.findDialog.bind(this))
+        .data;
+      this.setState({
+        messages,
+        nameChat: params.name,
+        idDialog: params.dialogID
+      });
+      //   }
+      // })
+      return;
+    }
+    //this.props.createDialog(this.props.navigation.state.params.idFriend);
   }
   componentWillReceiveProps(nextProps) {
-    const {login} = this.props;
-    if (nextProps.dialog && this.state.count <1) {
-      initForChat(nextProps.dialog.id);
-      this.props.loadOldMessage(nextProps.dialog._id);
-      this.setState({ idDialog: nextProps.dialog._id, count: 1});
-      
-    }
-    if (nextProps.oldMessage !== null && nextProps.oldMessage._id === nextProps.dialog._id ) {
-      // {
-      //   _id: "5a4a4c5a6347833e13aec320",
-      //   senderId: 39923345,
-      //   recipientId: 39841524,
-      //   saveToHistory: false,
-      //   dateSent: 1514818650,
-      //   body: "null",
-      //   dialogId: "5a4a4c4ea0eb477c6a2eda8a"
-      // }
-    //   _id: Math.round(Math.random() * 1000000),
-    // text: "Are you building a chat app?",
-    // createdAt: new Date(Date.UTC(2016, 7, 30, 17, 20, 0)),
-    // user: {
-    //   _id: 2,
-    //   name: "React Native"
-    // }
-      const data =[];
-      nextProps.oldMessage.data.forEach(item=>{
-
-        const newItem={
-          _id: item._id,
-          text: item.body,
-          createdAt: new Date(item.dateSent),
-          dialogId: item.dialogId,
-          user: {
-            _id : item.senderId
-          },
-          senderId: item.senderId,
-          recipientId: item.recipientId,
-          saveToHistory: item.saveToHistory
-        }
-        data.push(newItem)
-      });
+    if (nextProps.dialogShouldUpdate === this.props.navigation.state.params.dialogID) {
       this.setState({
-        messages: data.reverse()
+        message: nextProps.oldMessage.findDialog.find(
+          this.findDialog.bind(this)
+        ).data
       });
     }
+    // const {login} = this.props;
+    // if (nextProps.dialog && this.state.count <1) {
+    //   initForChat(nextProps.dialog.id);
+    //   this.props.loadOldMessage(nextProps.dialog._id);
+    //   this.setState({ idDialog: nextProps.dialog._id, count: 1});
+
+    // }
+    // if (nextProps.oldMessage !== null && nextProps.oldMessage._id === nextProps.dialog._id ) {
+    //   // {
+    //   //   _id: "5a4a4c5a6347833e13aec320",
+    //   //   senderId: 39923345,
+    //   //   recipientId: 39841524,
+    //   //   saveToHistory: false,
+    //   //   dateSent: 1514818650,
+    //   //   body: "null",
+    //   //   dialogId: "5a4a4c4ea0eb477c6a2eda8a"
+    //   // }
+    // //   _id: Math.round(Math.random() * 1000000),
+    // // text: "Are you building a chat app?",
+    // // createdAt: new Date(Date.UTC(2016, 7, 30, 17, 20, 0)),
+    // // user: {
+    // //   _id: 2,
+    // //   name: "React Native"
+    // // }
+    //   const data =[];
+    //   nextProps.oldMessage.data.forEach(item=>{
+
+    // const newItem={
+    //   _id: item._id,
+    //   text: item.body,
+    //   createdAt: new Date(item.dateSent),
+    //   dialogId: item.dialogId,
+    //   user: {
+    //     _id : item.senderId
+    //   },
+    //   senderId: item.senderId,
+    //   recipientId: item.recipientId,
+    //   saveToHistory: item.saveToHistory
+    // }
+    //     data.push(newItem)
+    //   });
+    //   this.setState({
+    //     messages: data.reverse()
+    //   });
+    // }
   }
   renderBubble(props) {
     return (
@@ -126,9 +170,15 @@ class ChatScreenOffical extends Component {
       />
     );
   }
+  findDialog(dialog) {
+    return dialog._id == this.props.navigation.state.params.dialogID;
+  }
   sendMessage(uuid) {
+    console.log("==================sendMessage==================");
+    console.log(this.state);
+    console.log("====================================");
     const { login } = this.props;
-    const { message }= this.state;
+    const { message } = this.state;
     const newmessage = {
       _id: uuid(),
       text: message,
@@ -137,28 +187,26 @@ class ChatScreenOffical extends Component {
         _id: login
       }
     };
-    this.props.sendMessage(
-      this.state.idDialog,
-      this.props.navigation.state.params.idFriend,
-      message
-    );
+    this.props.sendMessage(this.state.idDialog, message);
     this.setState(previousState => {
       return {
-        messages: GiftedChat.append(previousState.messages, newmessage)
+        messages: GiftedChat.append(previousState.messages, newmessage),
+        isTouchCompose: false
       };
     });
+    this.inputComposer.clear();
   }
-  inputMessage(value){
-    if(value.length>0){
+  inputMessage(value) {
+    if (value.length > 0) {
       this.setState({
         message: value,
         haveContent: true
-      })
-    }else{
+      });
+    } else {
       this.setState({
         message: "",
         haveContent: false
-      })
+      });
     }
   }
   renderInputToolbar2(props) {
@@ -185,33 +233,41 @@ class ChatScreenOffical extends Component {
             />
           </View>
         ) : (
-          
-            <Icon
-              name="md-add-circle"
-              style={{ color: "#FC2449", fontSize: 33, marginLeft: 5 }}
-              onPress={() => this.setState({ isTouchCompose: false })}
-            />
-         
+          <Icon
+            name="md-add-circle"
+            style={{ color: "#FC2449", fontSize: 33, marginLeft: 5 }}
+            onPress={() => this.setState({ isTouchCompose: false })}
+          />
         )}
         <TouchableOpacity
-          style={this.state.isTouchCompose? styles.composerInputFull :styles.composerInput}
-         onPress= {()=> this.setState({ isTouchCompose: true})}
+          style={
+            this.state.isTouchCompose
+              ? styles.composerInputFull
+              : styles.composerInput
+          }
+          onPress={() => this.setState({ isTouchCompose: true })}
         >
           <TextInput
             style={{ fontSize: 12, minWidth: 140, marginLeft: 10 }}
             placeholder="Type your message......"
             underlineColorAndroid="transparent"
-            onFocus= {()=> this.setState({ isTouchCompose: true})}  
-            onChangeText={this.inputMessage.bind(this)}          
+            onFocus={() => this.setState({ isTouchCompose: true })}
+            onChangeText={this.inputMessage.bind(this)}
+            ref={ com=> this.inputComposer= com}
           />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.btnSendMessage}
+        <TouchableOpacity
+          style={styles.btnSendMessage}
           disabled={!this.state.haveContent}
-          onPress={()=> this.sendMessage(props.messageIdGenerator)}
-          >
+          onPress={() => this.sendMessage(props.messageIdGenerator)}
+        >
           <Icon
-          name="md-send"
-          style={this.state.haveContent ? styles.btnSendHaveContent: styles.btnSendNoContent}
+            name="md-send"
+            style={
+              this.state.haveContent
+                ? styles.btnSendHaveContent
+                : styles.btnSendNoContent
+            }
           />
         </TouchableOpacity>
       </View>
@@ -230,7 +286,7 @@ class ChatScreenOffical extends Component {
                 onPress={() => this.props.navigation.goBack()}
               />
               <Text style={{ fontSize: 20, fontWeight: "500", marginLeft: 10 }}>
-                Thanh Pham
+                {this.state.nameChat}
               </Text>
               <View
                 style={{
@@ -324,7 +380,7 @@ class ChatScreenOffical extends Component {
 }
 export default connect(
   state => ({
-    dialog: state.chat.dialog,
+    dialogShouldUpdate: state.chat.dialogShouldUpdate,
     oldMessage: state.chat.oldMessage,
     login: state.auth.login
   }),
@@ -374,20 +430,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderRadius: 20,
     alignItems: "center",
-   // backgroundColor: "red",
+    // backgroundColor: "red",
     borderWidth: 1,
     borderColor: "grey",
     height: 36,
     marginLeft: 5
   },
   btnSendMessage: {
-    justifyContent:"center",
-    alignItems: "center", 
-    width: 40,            
-    height: 36,
-    },
-  btnSendHaveContent:{ fontSize: 24, color: "#FC2449"},
-  btnSendNoContent:{ fontSize: 24, color: "#98AAB0"},
+    justifyContent: "center",
+    alignItems: "center",
+    width: 40,
+    height: 36
+  },
+  btnSendHaveContent: { fontSize: 24, color: "#FC2449" },
+  btnSendNoContent: { fontSize: 24, color: "#98AAB0" },
   /**
    * Modall
    */
