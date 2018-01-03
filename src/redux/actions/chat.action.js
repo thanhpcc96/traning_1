@@ -89,7 +89,7 @@ export const loadOldMessage = listIDdialog => {
                 });
 
             }
-          const obj = { _id: element, data: newData.reverse() };
+          const obj = { _id: element, data: newData.reverse()};
           dispatch({
             type: LOAD_OLD_MESSAGE_OF_DIALOG,
             payload: obj
@@ -99,6 +99,11 @@ export const loadOldMessage = listIDdialog => {
     });
   };
 };
+export const resetStateAfterDialogUpdated=()=>{
+  return dispatch=>{
+    dispatch({ type: "RESET_STATE_AFTER_DIALOG_ID_UPDATED"})
+  }
+}
 export const initForChat = idChatDialog => {
   quiclblox.initDialogForChat(idChatDialog, () => {
     console.log("initForChat OK");

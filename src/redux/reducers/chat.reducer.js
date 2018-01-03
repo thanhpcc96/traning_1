@@ -97,6 +97,12 @@ export default function(state = initLoadDialog, { type, payload }) {
         dialogShouldUpdate: payload.dialogId
       }
     }
+    case "RESET_STATE_AFTER_DIALOG_ID_UPDATED": 
+      return {
+        ...state,
+        dialogShouldUpdate: null,
+        imcommingMessage: null,
+      }
     default:
       return state;
   }

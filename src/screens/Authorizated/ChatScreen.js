@@ -38,7 +38,8 @@ import {
   createDialog,
   loadOldMessage,
   initForChat,
-  sendMessage
+  sendMessage,
+  resetStateAfterDialogUpdated
 } from "../../redux/actions/chat.action";
 import HeaderCustom from "../../common/Header";
 import { data } from "./fakeData";
@@ -96,12 +97,17 @@ class ChatScreenOffical extends Component {
     //this.props.createDialog(this.props.navigation.state.params.idFriend);
   }
   componentWillReceiveProps(nextProps) {
-    if (nextProps.dialogShouldUpdate === this.props.navigation.state.params.dialogID) {
-      this.setState({
-        message: nextProps.oldMessage.findDialog.find(
-          this.findDialog.bind(this)
-        ).data
+    if (nextProps.dialogShouldUpdate && nextProps.dialogShouldUpdate === this.props.navigation.state.params.dialogID) {
+      console.log('====================================');
+      console.log("cap nhat lai dialog ne!")
+      console.log('====================================');
+      this.setState(previousState => {
+        return {
+          messages: GiftedChat.append(previousState.messages, nextProps.imcommingMessage),
+          //isTouchCompose: false
+        };
       });
+      this.props.resetStateAfterDialogUpdated()
     }
     // const {login} = this.props;
     // if (nextProps.dialog && this.state.count <1) {
@@ -382,12 +388,14 @@ export default connect(
   state => ({
     dialogShouldUpdate: state.chat.dialogShouldUpdate,
     oldMessage: state.chat.oldMessage,
-    login: state.auth.login
+    login: state.auth.login,
+    imcommingMessage: state.chat.imcommingMessage
   }),
   {
     createDialog,
     loadOldMessage,
-    sendMessage
+    sendMessage,
+    resetStateAfterDialogUpdated
   }
 )(ChatScreenOffical);
 const styles = StyleSheet.create({

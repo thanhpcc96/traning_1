@@ -7,7 +7,6 @@ import {
   Platform,
   PermissionsAndroid,
   NativeEventEmitter
- 
 } from "react-native";
 import { Provider } from "react-redux";
 import { persistStore } from "redux-persist";
@@ -17,8 +16,8 @@ import store from "./src/redux/store";
 import Root from "./src";
 import { ListFriend, AuthScreen } from "./src/screens";
 
-const QuickbloxModule = new NativeEventEmitter(RNQuickblox);
 
+const QuickbloxModule = new NativeEventEmitter(RNQuickblox);
 if (UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
@@ -28,60 +27,61 @@ class App extends Component {
     super(props);
     this.quickblox = new Quickblox(store);
     this.quickblox.init();
+    this.quickblox.addUserActionSubcriber(this);
     if (Platform.OS === "android") requestPermissions();
     this.state = {
-      ready: false
+      ready: false,
+      calling: false
     };
-    this.registerEvent()
-    
+    this.registerEvent();
   }
-  registerEvent(){
-      // QuickbloxModule.addListener(
-      //   RNQuickblox.DID_RECEIVE_CALL_SESSION,
-      //   this.receiveCall.bind(this)
-      // );
-      // QuickbloxModule.addListener(
-      //   RNQuickblox.USER_ACCEPT_CALL,
-      //   this.userAcceptCall.bind(this)
-      // );
-      // QuickbloxModule.addListener(
-      //   RNQuickblox.USER_REJECT_CALL,
-      //   this.userRejectCall.bind(this)
-      // );
-      // QuickbloxModule.addListener(
-      //   RNQuickblox.SESSION_DID_CLOSE,
-      //   this.sessionDidClose.bind(this)
-      // );
-      // QuickbloxModule.addListener(
-      //   RNQuickblox.USER_HUNG_UP,
-      //   this.userHungUp.bind(this)
-      // );
-      QuickbloxModule.addListener(
-        RNQuickblox.RECEIVE_IMCOMING_MESSAGE,
-        this.receiveMessage.bind(this)
-      );
-    
+  registerEvent() {
+    QuickbloxModule.addListener(
+      RNQuickblox.DID_RECEIVE_CALL_SESSION,
+      this.receiveCall.bind(this)
+    );
+    // QuickbloxModule.addListener(
+    //   RNQuickblox.USER_ACCEPT_CALL,
+    //   this.userAcceptCall.bind(this)
+    // );
+    // QuickbloxModule.addListener(
+    //   RNQuickblox.USER_REJECT_CALL,
+    //   this.userRejectCall.bind(this)
+    // );
+    // QuickbloxModule.addListener(
+    //   RNQuickblox.SESSION_DID_CLOSE,
+    //   this.sessionDidClose.bind(this)
+    // );
+    // QuickbloxModule.addListener(
+    //   RNQuickblox.USER_HUNG_UP,
+    //   this.userHungUp.bind(this)
+    // );
+    QuickbloxModule.addListener(
+      RNQuickblox.RECEIVE_IMCOMING_MESSAGE,
+      this.receiveMessage.bind(this)
+    );
   }
+  receiveCall(userInfo){
+    console.log("receiveCall userInfo", userInfo);
+    store.dispatch({ type: DID_RECEIVE_CALL_SESSION, payload: userInfo})
+  }
+
   receiveMessage(data) {
-    console.log("====================================");
-    console.log("receiveMessage tu trong android ra ne");
-    console.log(data);
-    const newData={
+    const newData = {
       _id: data.id,
       text: data.text,
-      createdAt: new Date(data.dateSent),
+      createdAt: new Date().toUTCString(),
       dialogId: data.dialogId,
       user: {
-        _id :data.senderId
+        _id: data.senderId
       },
       senderId: data.senderId,
-      recipientId: data.recipientId,
-    }
-    store.dispatch({ type: "RECEIVE_IMCOMING_MESSAGE", payload: newData});
+      recipientId: data.recipientId
+    };
+    store.dispatch({ type: RECEIVE_IMCOMING_MESSAGE, payload: newData });
   }
 
   componentDidMount() {
-    
     // persistStore(
     //   store,
     //   {
@@ -91,7 +91,7 @@ class App extends Component {
     //   () => this.setState({ ready: true })
     // );
   }
- 
+
   render() {
     // if (this.state.ready === false) {
     //   return (
@@ -125,3 +125,10 @@ function requestPermissions() {
     console.log(err);
   }
 }
+
+export const DID_RECEIVE_CALL_SESSION = "DID_RECEIVE_CALL_SESSION";
+export const USER_ACCEPT_CALL = "USER_ACCEPT_CALL";
+export const USER_REJECT_CALL = "USER_REJECT_CALL";
+export const USER_HUNG_UP = "USER_HUNG_UP";
+export const SESSION_DID_CLOSE = "SESSION_DID_CLOSE";
+export const RECEIVE_IMCOMING_MESSAGE = "RECEIVE_IMCOMING_MESSAGE";

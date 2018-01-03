@@ -9,6 +9,10 @@ import { Container, Text } from "native-base";
 import RNgradient from "react-native-linear-gradient";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import {
+  QuickbloxLocalVideoView,
+  QuickbloxRemoteVideoView
+} from "react-native-video-quickblox";
 
 class VideoCall extends Component {
   static navigationOptions = {
@@ -22,24 +26,28 @@ class VideoCall extends Component {
     return (
       <Container>
         <View style={{ flex: 1 }}>
-          <RNgradient
-            style={{ flex: 1 }}
-            colors={["rgba(0,0,0,0.5),rgba(0,0,0,0),rgba(0,0,0,0.5)"]}
-          >
-            <ImageBackground
-              source={require("../../../assets/img/videocall.png")}
-              style={{ height: "100%", width: "100%", zIndex: -1 }}
-            />
-          </RNgradient>
+          <QuickbloxRemoteVideoView
+            // source={require("../../../assets/img/videocall.png")}
+            style={{
+              height: "100%",
+              width: "100%",
+              zIndex: -1,
+              backgroundColor: "#FFF"
+            }}
+          />
+
           <TouchableOpacity style={styles.btnEndCall}>
             <MaterialIcons name="call-end" color="#FFF" size={25} />
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.micIcon}>
             <Ionicons name="ios-mic" color="#FFF" size={35} />
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.revertCamera}>
             <Ionicons name="ios-reverse-camera" color="#FFF" size={35} />
           </TouchableOpacity>
+
           <Text style={styles.headerTitle}>Chat app video call</Text>
           <Text style={styles.name}>Thanh Pham</Text>
         </View>
@@ -50,12 +58,18 @@ class VideoCall extends Component {
             height: 200,
             borderRadius: 20,
             left: 30,
-            bottom: 100
+            bottom: 100,
+            backgroundColor: "#000"
           }}
         >
-          <ImageBackground
-            source={require("../../../assets/img/beforeCam.png")}
-            style={{ width: 140, height: 200, borderRadius: 20 }}
+          <QuickbloxLocalVideoView
+            // source={require("../../../assets/img/beforeCam.png")}
+            style={{
+              width: 140,
+              height: 200,
+              borderRadius: 20,
+              backgroundColor: "#000"
+            }}
           />
         </View>
       </Container>

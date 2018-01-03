@@ -20,13 +20,7 @@ let instance = null;
 
 export default class {
   constructor(store) {
-    console.log("=================constructor(store)===================");
-    console.log(store);
-    console.log("====================================");
     if (store || !instance) {
-      console.log("=================constructor(store) trong if===================");
-      console.log(store);
-      console.log("====================================");
       instance = this;
       this.subscriber = [];
       this.userActionSubcriber = [];
@@ -119,49 +113,53 @@ export default class {
     RNQuickblox.acceptCall();
   }
 
-  receiveCall(userId, userInfor) {
-    console.log(userInfor);
-    this.subscriber.forEach(sub => sub.receiveCall(userId, userInfor));
-
-    this.store.dispatch({ type: SET_IN_COMING_CALL_MODAL });
+  rejectCall(){
+    RNQuickblox.rejectCall()
   }
 
-  userAcceptCall(data) {
-    console.log("userAcceptCall", data);
-    console.log(this);
-    // this.userActionSubcriber.forEach(sub => sub.userAcceptCall()); // --> Error userAcceptCall is not a function.
-    this.userActionSubcriber.userAcceptCall();
-    // this.subscriber.forEach(sub => sub.userAcceptCall());
-    // this.store.dispatch({type: USER_ACCEPT_CALL})
-  }
+  // receiveCall(userId, userInfor) {
+  //   console.log(userInfor);
+  //   this.subscriber.forEach(sub => sub.receiveCall(userId, userInfor));
 
-  userRejectCall() {
-    RNQuickblox.rejectCall();
-    this.userActionSubcriber.userRejectCall();
-    console.log("userRejectCall");
-    // this.store.dispatch({type: USER_REJECT_CALL})
-  }
+  //   this.store.dispatch({ type: SET_IN_COMING_CALL_MODAL });
+  // }
 
-  sessionDidClose() {
-    console.log("sessionDidClose", RNQuickblox);
-    // RNQuickblox.onSessionClosed();
-    // this.store.dispatch({type: SESSION_DID_CLOSE})
-  }
+  // userAcceptCall(data) {
+  //   console.log("userAcceptCall", data);
+  //   console.log(this);
+  //   // this.userActionSubcriber.forEach(sub => sub.userAcceptCall()); // --> Error userAcceptCall is not a function.
+  //   this.userActionSubcriber.userAcceptCall();
+  //   // this.subscriber.forEach(sub => sub.userAcceptCall());
+  //   // this.store.dispatch({type: USER_ACCEPT_CALL})
+  // }
 
-  userHungUp() {
-    console.log("hangup");
-    this.userActionSubcriber.userHangup();
-    // this.store.dispatch({type: USER_HUNG_UP})
-  }
-  receiveMessage(data) {
-    console.log("====================================");
-    console.log("receiveMessage tu trong android ra ne");
-    console.log(data);
-    console.log("====================================");
-    console.log(this.store)
-    console.log("====================================");
-    this.store.dispatch({ type: RECEIVE_IMCOMING_MESSAGE, payload: data});
-  }
+  // userRejectCall() {
+  //   RNQuickblox.rejectCall();
+  //   //this.userActionSubcriber.userRejectCall();
+  //   console.log("userRejectCall");
+  //   // this.store.dispatch({type: USER_REJECT_CALL})
+  // }
+
+  // sessionDidClose() {
+  //   console.log("sessionDidClose", RNQuickblox);
+  //   // RNQuickblox.onSessionClosed();
+  //   // this.store.dispatch({type: SESSION_DID_CLOSE})
+  // }
+
+  // userHungUp() {
+  //   console.log("hangup");
+  //   this.userActionSubcriber.userHangup();
+  //   // this.store.dispatch({type: USER_HUNG_UP})
+  // }
+  // receiveMessage(data) {
+  //   console.log("====================================");
+  //   console.log("receiveMessage tu trong android ra ne");
+  //   console.log(data);
+  //   console.log("====================================");
+  //   console.log(this.store)
+  //   console.log("====================================");
+  //   this.store.dispatch({ type: RECEIVE_IMCOMING_MESSAGE, payload: data});
+  // }
 
   /**
    * Chat
@@ -194,6 +192,7 @@ export default class {
   retrieveMessagesOfChatDialog(idChatDialog, callback) {
     RNQuickblox.retrieveMessagesOfChatDialog(idChatDialog, data => {
       const obj = JSON.parse(data);
+      console.log("retrieveMessagesOfChatDialog",data)
       if (callback) callback(obj);
     });
   }
