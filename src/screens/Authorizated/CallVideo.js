@@ -1,106 +1,184 @@
-import React, { Component } from "react";
+/**
+ * Created by admin on 2/9/17.
+ */
+
+import React from "react";
 import {
+  StyleSheet,
+  Text,
+  TextInput,
   View,
-  ImageBackground,
-  StatusBar,
-  TouchableOpacity
+  LayoutAnimation,
+  TouchableHighlight,
+  TouchableOpacity,
+  Image,
+  Platform,
+  BackHandler
 } from "react-native";
-import { Container, Text } from "native-base";
-import RNgradient from "react-native-linear-gradient";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import Ionicons from "react-native-vector-icons/Ionicons";
 import {
   QuickbloxLocalVideoView,
   QuickbloxRemoteVideoView
 } from "react-native-video-quickblox";
+import RNQuickbloxManager from "../../QuickbloxManager";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { connect } from "react-redux";
 
-class VideoCall extends Component {
+import { rejectCall } from "../../redux/actions/videocall.action";
+
+class VideoCalling extends React.Component {
   static navigationOptions = {
     header: null
   };
   constructor(props) {
     super(props);
-    StatusBar.setBarStyle("light-content");
+    this.RNQuickblox = new RNQuickbloxManager();
+    this.state = {
+      bottom: 1,
+      enableVoice: true
+    };
+    BackHandler.addEventListener("hardwareBackPress",()=>{
+      console.log("nhan back a!");
+    });
+    return false;
+  }
+  toggleVoice() {
+    this.setState({
+      enableVoice: !this.state.enableVoice
+    });
   }
   render() {
     return (
-      <Container>
-        <View style={{ flex: 1 }}>
-          <QuickbloxRemoteVideoView
-            // source={require("../../../assets/img/videocall.png")}
-            style={{
-              height: "100%",
-              width: "100%",
-              zIndex: -1,
-              backgroundColor: "#FFF"
+      <View style={styles.container}>
+        {/*<Text style={styles.iconTitle}>{setTime(this.props.callingTime)}</Text>*/}
+        <QuickbloxRemoteVideoView style={styles.callDetails}>
+          {Platform.OS === "android" ? (
+            <QuickbloxLocalVideoView
+              style={[styles.userVideo, { bottom: this.state.bottom }]}
+              onRendered={() => this.setState({ bottom: 0 })}
+            />
+          ) : (
+            <QuickbloxLocalVideoView style={styles.userVideo} />
+          )}
+        </QuickbloxRemoteVideoView>
+        <View style={styles.callButtonContainer}>
+          <TouchableOpacity
+            style={styles.micIcon}
+            onPress={this.toggleVoice.bind(this)}
+          >
+            {this.state.enableVoice ? (
+              <Ionicons name="ios-mic-off" color="#FFF" size={35} />
+            ) : (
+              <Ionicons name="ios-mic" color="#FFF" size={35} />
+            )}
+          </TouchableOpacity>
+
+          <TouchableHighlight
+            onPress={() => {
+              this.props.rejectCall();
+              this.props.navigation.goBack();
             }}
-          />
-
-          <TouchableOpacity style={styles.btnEndCall}>
-            <MaterialIcons name="call-end" color="#FFF" size={25} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.micIcon}>
-            <Ionicons name="ios-mic" color="#FFF" size={35} />
-          </TouchableOpacity>
+            underlayColor={"transparent"}
+          >
+            <View style={styles.buttonContainer}>
+              <View style={[styles.iconContainer, { backgroundColor: "red" }]}>
+                <MaterialIcons name="call-end" color="#FFF" size={25} />
+              </View>
+              {/*<Text style={styles.iconTitle}>Decline</Text>*/}
+            </View>
+          </TouchableHighlight>
 
           <TouchableOpacity style={styles.revertCamera}>
             <Ionicons name="ios-reverse-camera" color="#FFF" size={35} />
           </TouchableOpacity>
-
-          <Text style={styles.headerTitle}>Chat app video call</Text>
-          <Text style={styles.name}>Thanh Pham</Text>
         </View>
-        <View
-          style={{
-            position: "absolute",
-            width: 140,
-            height: 200,
-            borderRadius: 20,
-            left: 30,
-            bottom: 100,
-            backgroundColor: "#000"
-          }}
-        >
-          <QuickbloxLocalVideoView
-            // source={require("../../../assets/img/beforeCam.png")}
-            style={{
-              width: 140,
-              height: 200,
-              borderRadius: 20,
-              backgroundColor: "#000"
-            }}
-          />
-        </View>
-      </Container>
+        <Text style={styles.headerTitle}>Chat app video call</Text>
+        <Text style={styles.name}>Thanh Pham</Text>
+      </View>
     );
   }
 }
-export default VideoCall;
 
-const styles = {
-  btnEndCall: {
-    backgroundColor: "#FC2449",
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+export default connect(
+  state => ({
+    userInfo: state.video.userInfo
+  }),
+  {
+    rejectCall
+  }
+)(VideoCalling);
+
+function setTime(totalSeconds) {
+  let sec = pad(totalSeconds % 60);
+  let min = pad(parseInt(totalSeconds / 60));
+  return min + " : " + sec;
+}
+
+function pad(val) {
+  let valString = val + "";
+  if (valString.length < 2) {
+    return "0" + valString;
+  } else {
+    return valString;
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "white",
+    marginTop: 0
+  },
+  callDetails: {
+    flex: 3,
+    backgroundColor: "#6969"
+  },
+  userVideo: {
+    position: "absolute",
+    bottom: 1,
+    right: 0,
+    width: 80,
+    height: 120,
+    backgroundColor: "green",
+    overflow: "hidden"
+  },
+  callButtonContainer: {
+    flex: 1,
+    justifyContent: "space-around",
+    alignItems: "center",
+    flexDirection: "row",
+    backgroundColor: "rgba(23, 20, 31, 0.41)"
+  },
+  iconContainer: {
+    height: 80,
+    width: 80,
+    borderRadius: 40,
     justifyContent: "center",
     alignItems: "center",
-    position: "absolute",
-    bottom: 30,
-    left: "40%",
-    right: "40%"
+    marginBottom: 10
+  },
+  buttonContainer: {
+    alignItems: "center"
+  },
+  icon: {
+    height: 30,
+    width: 30
+  },
+  iconTitle: {
+    alignItems: "center",
+    fontSize: 15,
+    alignSelf: "center"
   },
   micIcon: {
-    position: "absolute",
-    bottom: 20,
-    left: 40,
+    // position: "absolute",
+    // bottom: 20,
+    // left: 40,
     backgroundColor: "transparent"
   },
   revertCamera: {
-    position: "absolute",
-    bottom: 20,
-    right: 40,
+    // position: "absolute",
+    // bottom: 20,
+    // right: 40,
     backgroundColor: "transparent"
   },
   headerTitle: {
@@ -121,4 +199,4 @@ const styles = {
     fontSize: 25,
     fontWeight: "500"
   }
-};
+});

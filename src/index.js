@@ -3,7 +3,7 @@ import { Text, Image, TouchableOpacity, View, Dimensions } from "react-native";
 import { NavigationActions } from "react-navigation";
 import { Root, Toast } from "native-base";
 import AppNav from "./router";
-import { ChatScreen } from "./screens";
+import { CallVideo } from "./screens";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Modal from "react-native-modal";
@@ -23,7 +23,7 @@ class RootApp extends Component {
   render() {
     return (
       <Root>
-        <AppNav />
+        <CallVideo />
         {this._renderModalReceiveCall()}
       </Root>
     );

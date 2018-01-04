@@ -61,7 +61,8 @@ class App extends Component {
       this.receiveMessage.bind(this)
     );
   }
-  receiveCall(userInfo){
+  receiveCall(data){
+    const userInfo= JSON.parse(data);
     console.log("receiveCall userInfo", userInfo);
     store.dispatch({ type: DID_RECEIVE_CALL_SESSION, payload: userInfo})
   }
