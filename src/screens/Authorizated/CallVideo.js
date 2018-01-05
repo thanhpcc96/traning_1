@@ -26,6 +26,7 @@ import { connect } from "react-redux";
 
 import { rejectCall } from "../../redux/actions/videocall.action";
 
+const quickblox = new RNQuickbloxManager();
 class VideoCalling extends React.Component {
   static navigationOptions = {
     header: null
@@ -37,7 +38,7 @@ class VideoCalling extends React.Component {
       bottom: 1,
       enableVoice: true
     };
-    BackHandler.addEventListener("hardwareBackPress",()=>{
+    BackHandler.addEventListener("hardwareBackPress", () => {
       console.log("nhan back a!");
     });
     return false;
@@ -46,6 +47,7 @@ class VideoCalling extends React.Component {
     this.setState({
       enableVoice: !this.state.enableVoice
     });
+    quickblox.toggleAudio();
   }
   render() {
     return (
@@ -88,7 +90,10 @@ class VideoCalling extends React.Component {
             </View>
           </TouchableHighlight>
 
-          <TouchableOpacity style={styles.revertCamera}>
+          <TouchableOpacity
+            style={styles.revertCamera}
+            onPress={() => quickblox.switchCamera()}
+          >
             <Ionicons name="ios-reverse-camera" color="#FFF" size={35} />
           </TouchableOpacity>
         </View>

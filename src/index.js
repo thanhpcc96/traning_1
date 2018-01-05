@@ -23,7 +23,7 @@ class RootApp extends Component {
   render() {
     return (
       <Root>
-        <CallVideo />
+        <AppNav />
         {this._renderModalReceiveCall()}
       </Root>
     );

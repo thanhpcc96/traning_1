@@ -30,7 +30,8 @@ import { connect } from "react-redux";
 
 import {
   loadDialogs,
-  loadOldMessage
+  loadOldMessage, 
+  getListUsers
 } from "../../redux/actions/chat.action";
 
 import HeaderCustom from "../../common/Header";
@@ -48,6 +49,7 @@ class MainScreen extends Component {
   componentDidMount() {
     //this.props.loadDialogs();
     this.props.loadDialogs();
+    this.props.getListUsers();
   }
   selectItem(id, name) {
     this.props.navigation.navigate("Chat", { from : "main", dialogID: id, name });
@@ -249,6 +251,7 @@ class MainScreen extends Component {
 }
 export default connect(
   state => ({
+    
     listDialogs: state.chat.listDialogs,
     loadedDialogs: state.chat.loadedDialogs,
     errorDialogs: state.chat.errorDialogs,
@@ -257,7 +260,8 @@ export default connect(
   }),
   {
     loadDialogs,
-    loadOldMessage
+    loadOldMessage,
+    getListUsers
   }
 )(MainScreen);
 
